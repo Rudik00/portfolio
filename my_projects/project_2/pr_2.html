@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TG Bot Nails | Портфолио-презентация</title>
+  <meta name="description" content="Портфолио-презентация Telegram-бота для nail-студии: запись, отмена, расписание мастеров, уведомления и PostgreSQL." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050505;
+      --paper: rgba(255, 255, 255, 0.04);
+      --ink: #ffffff;
+      --muted: rgba(255, 255, 255, 0.72);
+      --line: rgba(255, 255, 255, 0.18);
+      --accent: rgba(255, 255, 255, 0.16);
+      --accent-2: rgba(255, 255, 255, 0.78);
+      --chip: rgba(255, 255, 255, 0.07);
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.42);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Yanone Kaffeesatz", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
+        radial-gradient(circle at 82% 74%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
+        linear-gradient(140deg, #030303 0%, #0b0b0b 56%, #040404 100%);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.06) 0.5px, transparent 0.5px);
+      background-size: 3px 3px;
+      opacity: 0.12;
+      z-index: 0;
+    }
+
+    .lang-btn {
+      width: 54px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: #ffffff;
+      font-family: "Yanone Kaffeesatz", sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .lang-btn.active {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    .wrap {
+      width: min(1120px, 92vw);
+      margin: 0 auto;
+      padding-left: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      padding: 28px 0 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-left: 190px;
+    }
+
+    .brand {
+      font-family: "Yanone Kaffeesatz", sans-serif;
+      font-size: clamp(20px, 2vw, 26px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .hero {
+      margin-top: 20px;
+      padding: clamp(26px, 4vw, 48px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(145deg, #fffdf8 0%, #fff6e9 58%, #f5fbf8 100%);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -95px;
+      top: -95px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197, 83, 45, 0.25), transparent 70%);
+      z-index: -1;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(18px, 3vw, 36px);
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      background: var(--chip);
+      border: 1px solid #e4d4bf;
+      color: #6b4a2c;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    h1, h2, h3 {
+      font-family: "Yanone Kaffeesatz", sans-serif;
+      line-height: 1.15;
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 70px);
+      max-width: 14ch;
+    }
+
+    .hero p {
+      margin-top: 14px;
+      color: var(--muted);
+      max-width: 56ch;
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 11px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--ink);
+      color: var(--ink);
+      background: transparent;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .preview {
+      border: 1px solid #ccbca8;
+      border-radius: var(--radius-lg);
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    }
+
+    .preview-top {
+      height: 38px;
+      border-bottom: 1px solid #e7dccf;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      background: #fbf6ef;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #d6b597;
+    }
+
+    .preview-body {
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      color: #454545;
+    }
+
+    .line {
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #f5efe6;
+      border: 1px solid #eadfce;
+    }
+
+    main {
+      margin-top: 26px;
+      display: grid;
+      gap: 18px;
+      padding-bottom: 30px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--paper);
+      padding: clamp(18px, 2.6vw, 26px);
+      box-shadow: 0 12px 26px rgba(59, 43, 29, 0.07);
+    }
+
+    .card h2 {
+      font-size: clamp(24px, 3vw, 34px);
+      margin-bottom: 12px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 12px;
+      border: 1px solid #d9cab7;
+      background: #faf2e7;
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: #614a33;
+    }
+
+    .list {
+      display: grid;
+      gap: 9px;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+
+    .list b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .step {
+      border-left: 3px solid var(--accent-2);
+      padding: 8px 0 8px 12px;
+      color: #304640;
+      background: linear-gradient(90deg, rgba(10, 143, 122, 0.08), transparent);
+      border-radius: 0 10px 10px 0;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      padding: 14px 12px;
+      border-radius: 12px;
+      border: 1px solid #e4d5c2;
+      background: #fff8ee;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 24px;
+      color: #b64d2b;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6c6054;
+      margin-top: 4px;
+    }
+
+    footer {
+      margin: 12px 0 36px;
+      padding: 18px 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    footer a {
+      color: #ffffff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: rise 620ms cubic-bezier(0.2, 0.65, 0.2, 1) forwards;
+    }
+
+    .delay-1 { animation-delay: 120ms; }
+    .delay-2 { animation-delay: 210ms; }
+    .delay-3 { animation-delay: 300ms; }
+    .delay-4 { animation-delay: 390ms; }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        padding-left: 0;
+        padding-top: 46px;
+      }
+
+      h1 {
+        max-width: 18ch;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .status {
+        display: none;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    .hero,
+    .card,
+    .preview,
+    .status,
+    .stat,
+    .chip,
+    .line,
+    .preview-top {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--line);
+      color: var(--muted);
+    }
+
+    .eyebrow,
+    .btn,
+    .btn.primary {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .step {
+      color: var(--muted);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent);
+      border-left-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .stat-num,
+    .list b,
+    .brand,
+    h1,
+    h2,
+    h3 {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+
+  <div class="wrap">
+    <section class="hero reveal delay-1">
+      <div class="hero-grid">
+        <div>
+          <h1>Автоматизация записи для nail-студии</h1>
+          <p>
+            Проект Telegram-бота с полноценным клиентским и мастерским сценарием:
+            запись, отмена, расписание, реальные слоты из базы данных, уведомления и
+            кликабельные контакты.
+          </p>
+        </div>
+
+        <div class="preview" aria-label="Карточка предпросмотра">
+          <div class="preview-top">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <div class="preview-body">
+            <div class="line">/new_entry</div>
+            <div class="line">Услуга -> Дата -> Время -> Мастер</div>
+            <div class="line">Показываются только свободные слоты</div>
+            <div class="line">/cancellation с inline-подтверждением</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section id="features" class="grid-2 reveal delay-2">
+        <article class="card">
+          <h2>Основной сценарий</h2>
+          <div class="timeline">
+            <div class="step"><b>1.</b> Клиент выбирает услугу, дату и свободное время.</div>
+            <div class="step"><b>2.</b> Бот показывает только доступных мастеров.</div>
+            <div class="step"><b>3.</b> Подтверждение сохраняет запись в обе таблицы.</div>
+            <div class="step"><b>4.</b> Мастер получает уведомление с контактом.</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Сценарий отмены</h2>
+          <div class="list">
+            <div><b>Inline-список:</b> дата + время + услуга.</div>
+            <div><b>Шаг подтверждения:</b> полная карточка + 2 кнопки.</div>
+            <div><b>Атомарное удаление:</b> запись удаляется у клиента и мастера.</div>
+            <div><b>Оповещение мастеру:</b> уведомление о факте отмены.</div>
+          </div>
+        </article>
+      </section>
+
+      <section id="stack" class="grid-2 reveal delay-3">
+        <article class="card">
+          <h2>Архитектура</h2>
+          <div class="list">
+            <div><b>Хендлеры:</b> разделение на клиентский и мастерский контуры.</div>
+            <div><b>Слой БД:</b> изолированные асинхронные операции.</div>
+            <div><b>Общий календарь:</b> единая логика рендера.</div>
+            <div><b>State machine:</b> предсказуемые пользовательские сценарии.</div>
+          </div>
+          <div class="chips">
+            <span class="chip">aiogram 3</span>
+            <span class="chip">SQLAlchemy async</span>
+            <span class="chip">PostgreSQL</span>
+            <span class="chip">asyncpg</span>
+            <span class="chip">FSM</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Результат</h2>
+          <p style="color: var(--muted); margin-bottom: 8px;">
+            Система ориентирована на реальную загрузку мастеров:
+            календарь и время учитывают уже занятые слоты в базе.
+          </p>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-num">2</div>
+              <div class="stat-label">Роли</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">10+</div>
+              <div class="stat-label">Команды и сценарии</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">100%</div>
+              <div class="stat-label">Доступность из БД</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="card reveal delay-4">
+        <h2>Заметки по проекту</h2>
+        <div class="list">
+          <div><b>Тип проекта:</b> production-подход к Telegram-автоматизации.</div>
+          <div><b>Бизнес-ценность:</b> меньше ручных подтверждений и конфликтов в расписании.</div>
+          <div><b>UX-деталь:</b> кликабельные Telegram-ссылки с fallback для пользователей без username.</div>
+          <div><b>Путь масштабирования:</b> онлайн-оплата, админ-панель, аналитика.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const ruButton = document.getElementById('lang-ru');
+    const enButton = document.getElementById('lang-en');
+
+    const textMap = {
+      'Одностраничная презентация проекта': 'One-page project presentation',
+      'Автоматизация записи для nail-студии': 'Booking automation for a nail studio',
+      'Проект Telegram-бота с полноценным клиентским и мастерским сценарием: запись, отмена, расписание, реальные слоты из базы данных, уведомления и кликабельные контакты.': 'Telegram bot project with full client and master flows: booking, cancellation, schedule, real slots from the database, notifications, and clickable contacts.',
+      'Смотреть возможности': 'View features',
+      'Технологический стек': 'Technology stack',
+      'Карточка предпросмотра': 'Preview card',
+      'Услуга -> Дата -> Время -> Мастер': 'Service -> Date -> Time -> Master',
+      'Показываются только свободные слоты': 'Only free slots are shown',
+      '/cancellation с inline-подтверждением': '/cancellation with inline confirmation',
+      'Основной сценарий': 'Main flow',
+      'Клиент выбирает услугу, дату и свободное время.': 'Client chooses service, date, and free time.',
+      'Бот показывает только доступных мастеров.': 'Bot shows only available masters.',
+      'Подтверждение сохраняет запись в обе таблицы.': 'Confirmation saves the record in both tables.',
+      'Мастер получает уведомление с контактом.': 'Master receives a notification with contact details.',
+      'Сценарий отмены': 'Cancellation flow',
+      'Inline-список:': 'Inline list:',
+      'дата + время + услуга.': 'date + time + service.',
+      'Шаг подтверждения:': 'Confirmation step:',
+      'полная карточка + 2 кнопки.': 'full card + 2 buttons.',
+      'Атомарное удаление:': 'Atomic deletion:',
+      'запись удаляется у клиента и мастера.': 'record is removed for both client and master.',
+      'Оповещение мастеру:': 'Master notification:',
+      'уведомление о факте отмены.': 'cancellation event notification.',
+      'Архитектура': 'Architecture',
+      'Хендлеры:': 'Handlers:',
+      'разделение на клиентский и мастерский контуры.': 'separation into client and master flows.',
+      'Слой БД:': 'DB layer:',
+      'изолированные асинхронные операции.': 'isolated asynchronous operations.',
+      'Общий календарь:': 'Shared calendar:',
+      'единая логика рендера.': 'single rendering logic.',
+      'State machine:': 'State machine:',
+      'предсказуемые пользовательские сценарии.': 'predictable user scenarios.',
+      'Результат': 'Result',
+      'Система ориентирована на реальную загрузку мастеров: календарь и время учитывают уже занятые слоты в базе.': 'The system is focused on real master workload: calendar and time consider already occupied slots in the database.',
+      'Роли': 'Roles',
+      'Команды и сценарии': 'Commands and flows',
+      'Доступность из БД': 'Availability from DB',
+      'Заметки по проекту': 'Project notes',
+      'Тип проекта:': 'Project type:',
+      'production-подход к Telegram-автоматизации.': 'production-oriented Telegram automation approach.',
+      'Бизнес-ценность:': 'Business value:',
+      'меньше ручных подтверждений и конфликтов в расписании.': 'fewer manual confirmations and schedule conflicts.',
+      'UX-деталь:': 'UX detail:',
+      'кликабельные Telegram-ссылки с fallback для пользователей без username.': 'clickable Telegram links with fallback for users without username.',
+      'Путь масштабирования:': 'Scaling path:',
+      'онлайн-оплата, админ-панель, аналитика.': 'online payments, admin panel, analytics.',
+      'TG Bot Nails • Одностраничная презентация проекта для портфолио': 'TG Bot Nails • One-page project presentation for portfolio'
+    };
+
+    const ariaMap = {
+      'Карточка предпросмотра': 'Preview card'
+    };
+
+    const nodes = [];
+    const normalize = (value) => value.replace(/\s+/g, ' ').trim();
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.parentElement && node.parentElement.closest('.language-switch, script, style')) {
+        continue;
+      }
+      if (normalize(node.textContent).length > 0) {
+        nodes.push({ node, original: node.textContent });
+      }
+    }
+
+    const ariaElements = Array.from(document.querySelectorAll('[aria-label]')).map((el) => ({
+      el,
+      original: el.getAttribute('aria-label')
+    }));
+
+    function setLanguage(lang) {
+      document.documentElement.lang = lang;
+      localStorage.setItem('preferredLanguage', lang);
+
+      nodes.forEach(({ node, original }) => {
+        const key = normalize(original);
+        if (lang === 'en' && textMap[key]) {
+          node.textContent = textMap[key];
+        } else {
+          node.textContent = original;
+        }
+      });
+
+      ariaElements.forEach(({ el, original }) => {
+        if (lang === 'en' && ariaMap[original]) {
+          el.setAttribute('aria-label', ariaMap[original]);
+        } else {
+          el.setAttribute('aria-label', original);
+        }
+      });
+
+      ruButton.classList.toggle('active', lang === 'ru');
+      enButton.classList.toggle('active', lang === 'en');
+    }
+
+    // Load language from localStorage on page load
+    const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+    setLanguage(savedLanguage);
+
+    ruButton.addEventListener('click', () => setLanguage('ru'));
+    enButton.addEventListener('click', () => setLanguage('en'));
+  </script>
+</body>
+</html>

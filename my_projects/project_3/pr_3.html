@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Restaurant Reservation Bot | Portfolio One Page</title>
+		<meta
+			name="description"
+			content="Одностраничная презентация проекта restaurant_reservation_bot: Telegram-бот, Mini App, FastAPI, PostgreSQL и система бронирования столиков."
+		/>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg: #050505;
+				--paper: rgba(255, 255, 255, 0.04);
+				--ink: #ffffff;
+				--muted: rgba(255, 255, 255, 0.74);
+				--line: rgba(255, 255, 255, 0.18);
+				--line-strong: rgba(255, 255, 255, 0.34);
+				--hero: linear-gradient(140deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+				--shadow: 0 20px 48px rgba(0, 0, 0, 0.46);
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: "Yanone Kaffeesatz", "Segoe UI", sans-serif;
+				color: var(--ink);
+				min-height: 100vh;
+				line-height: 1.5;
+				background:
+					radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
+					radial-gradient(circle at 84% 76%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
+					linear-gradient(140deg, #030303 0%, #0a0a0a 56%, #040404 100%);
+			}
+
+			.noise {
+				position: fixed;
+				inset: 0;
+				pointer-events: none;
+				opacity: 0.08;
+				background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.6px, transparent 0.6px);
+				background-size: 3px 3px;
+			}
+
+			.page {
+				width: min(1160px, 92vw);
+				margin: 0 auto;
+				padding: 28px 0 44px;
+				padding-left: 20px;
+			}
+			.language-switch {
+				position: absolute;
+				top: 28px;
+				left: 20px;
+				display: flex;
+				gap: 8px;
+				z-index: 5;
+			}
+
+			.lang-btn {
+				width: 54px;
+				height: 34px;
+				border-radius: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				background: rgba(255, 255, 255, 0.04);
+				color: #ffffff;
+				font-family: "Yanone Kaffeesatz", sans-serif;
+				font-size: 22px;
+				letter-spacing: 0.06em;
+				cursor: pointer;
+				transition: all 0.25s ease;
+			}
+
+			.lang-btn:hover {
+				border-color: rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.08);
+			}
+
+			.lang-btn.active {
+				background: rgba(255, 255, 255, 0.18);
+				border-color: rgba(255, 255, 255, 0.45);
+			}
+
+			.top {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 18px;
+				padding-left: 190px;
+			}
+
+			.brand {
+				font-size: clamp(22px, 2.6vw, 30px);
+				font-weight: 700;
+			}
+
+			.state {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 999px;
+				padding: 8px 13px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			h1,
+			h2 {
+				line-height: 1.12;
+			}
+
+			.hero {
+				border: 1px solid var(--line);
+				border-radius: 26px;
+				padding: clamp(24px, 4vw, 44px);
+				background: var(--hero);
+				box-shadow: var(--shadow);
+				display: grid;
+				grid-template-columns: 1.2fr 0.8fr;
+				gap: 22px;
+			}
+
+			.kicker {
+				display: inline-block;
+				margin-bottom: 12px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.06);
+				border-radius: 999px;
+				padding: 6px 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.07em;
+				font-weight: 800;
+				font-size: 12px;
+			}
+
+			h1 {
+				font-size: clamp(36px, 5.2vw, 68px);
+				max-width: 14ch;
+			}
+
+			.hero p {
+				margin-top: 14px;
+				color: var(--muted);
+				max-width: 65ch;
+			}
+
+			.cta {
+				margin-top: 22px;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			.btn {
+				display: inline-flex;
+				text-decoration: none;
+				border: 1px solid var(--line);
+				color: var(--ink);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 12px;
+				padding: 10px 16px;
+				font-weight: 700;
+				font-size: 14px;
+				transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+			}
+
+			.btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+				border-color: var(--line-strong);
+			}
+
+			.btn.primary {
+				background: rgba(255, 255, 255, 0.16);
+				border-color: rgba(255, 255, 255, 0.35);
+			}
+
+			.stats {
+				margin-top: 16px;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.stat {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 14px;
+				padding: 12px;
+			}
+
+			.stat strong {
+				display: block;
+				font-size: 26px;
+				line-height: 1;
+			}
+
+			.stat span {
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.window {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 18px;
+				overflow: hidden;
+			}
+
+			.window-top {
+				height: 36px;
+				border-bottom: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.03);
+				display: flex;
+				align-items: center;
+				gap: 7px;
+				padding: 0 11px;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.46);
+			}
+
+			.window-body {
+				padding: 14px;
+				display: grid;
+				gap: 8px;
+			}
+
+			.line {
+				border-radius: 10px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				padding: 8px 10px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.grid {
+				margin-top: 20px;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 16px;
+			}
+
+			.card {
+				border: 1px solid var(--line);
+				border-radius: 20px;
+				background: var(--paper);
+				padding: clamp(18px, 2.4vw, 24px);
+				box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+			}
+
+			.label {
+				display: inline-block;
+				margin-bottom: 10px;
+				font-size: 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				font-weight: 800;
+				border-radius: 999px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.06);
+				padding: 6px 10px;
+			}
+
+			.card h2 {
+				font-size: clamp(24px, 3.1vw, 35px);
+				margin-bottom: 10px;
+			}
+
+			.list {
+				padding-left: 18px;
+				display: grid;
+				gap: 8px;
+				color: var(--muted);
+			}
+
+			.chips {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				margin-top: 12px;
+			}
+
+			.chip {
+				font-size: 12px;
+				border: 1px solid var(--line);
+				border-radius: 999px;
+				padding: 6px 10px;
+				background: rgba(255, 255, 255, 0.06);
+			}
+
+			.timeline {
+				margin-top: 12px;
+				display: grid;
+				gap: 8px;
+			}
+
+			.step {
+				border: 1px dashed rgba(255, 255, 255, 0.34);
+				border-radius: 12px;
+				padding: 10px 12px;
+				background: rgba(255, 255, 255, 0.03);
+				font-size: 14px;
+			}
+
+			.step strong {
+				display: inline-block;
+				margin-right: 6px;
+			}
+
+			.result {
+				margin-top: 14px;
+				border: 1px dashed rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 14px;
+				padding: 12px;
+			}
+
+			.result strong {
+				display: block;
+				margin-bottom: 4px;
+			}
+
+			.footer {
+				margin-top: 18px;
+				text-align: center;
+				color: var(--muted);
+				font-size: 14px;
+			}
+
+			.reveal {
+				opacity: 0;
+				transform: translateY(16px);
+				animation: rise 680ms ease forwards;
+			}
+
+			.delay-1 {
+				animation-delay: 0.12s;
+			}
+
+			.delay-2 {
+				animation-delay: 0.24s;
+			}
+
+			.delay-3 {
+				animation-delay: 0.36s;
+			}
+
+			@keyframes rise {
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@media (max-width: 980px) {
+				.top {
+					padding-left: 0;
+					padding-top: 44px;
+				}
+
+				.hero,
+				.grid,
+				.stats {
+					grid-template-columns: 1fr;
+				}
+
+				.page {
+					padding-top: 20px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="noise" aria-hidden="true"></div>
+
+		<main class="page">
+			<section class="hero reveal delay-1">
+				<article>
+					<h1 data-i18n="heroTitle">Система бронирования столиков через Telegram-бота и Mini App</h1>
+					<p data-i18n="heroCopy">
+						Проект restaurant_reservation_bot объединяет Telegram-бота на aiogram,
+						FastAPI backend и Mini App интерфейс. Пользователь бронирует стол,
+						видит свои брони и может их отменить, а мастер получает доступ к
+						общей ленте бронирований и уведомлениям.
+					</p>
+
+					<div class="stats" aria-label="Ключевые показатели">
+						<div class="stat">
+							<strong>2.5h</strong>
+							<span data-i18n="stat1">буфер занятости столика</span>
+						</div>
+						<div class="stat">
+							<strong>2</strong>
+							<span data-i18n="stat2">режима интерфейса: user + master</span>
+						</div>
+						<div class="stat">
+							<strong>5+</strong>
+							<span data-i18n="stat3">основных API для брони</span>
+						</div>
+					</div>
+				</article>
+
+				<aside class="window" aria-label="Preview">
+					<div class="window-top">
+						<span class="dot"></span>
+						<span class="dot"></span>
+						<span class="dot"></span>
+					</div>
+					<div class="window-body">
+						<div class="line" data-i18n="line1">GET /api/availability - доступность столов</div>
+						<div class="line" data-i18n="line2">POST /api/booking - создание брони</div>
+						<div class="line" data-i18n="line3">GET /api/my-bookings - мои брони</div>
+						<div class="line" data-i18n="line4">DELETE /api/my-bookings/{id} - отмена</div>
+						<div class="line" data-i18n="line5">GET /api/master-bookings - мастер-режим</div>
+					</div>
+				</aside>
+			</section>
+
+			<section class="grid">
+				<article class="card reveal delay-2" id="features">
+					<span class="label" data-i18n="label1">Пользовательская зона</span>
+					<h2 data-i18n="h2_1">Основной функционал</h2>
+					<ul class="list">
+						<li data-i18n="f1">Выбор даты, времени и количества гостей в Mini App.</li>
+						<li data-i18n="f2">Подбор подходящих столов по вместимости.</li>
+						<li data-i18n="f3">Проверка конфликтов брони с буфером 2.5 часа.</li>
+						<li data-i18n="f4">Просмотр и отмена только своих бронирований.</li>
+						<li data-i18n="f5">Подтверждения и сообщения через Telegram.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result1Title">Результат</strong>
+						<p data-i18n="result1Text">Пользователь получает быстрый и прозрачный сценарий резерва столика прямо внутри Telegram.</p>
+					</div>
+				</article>
+
+				<article class="card reveal delay-3">
+					<span class="label" data-i18n="label2">Мастер-режим</span>
+					<h2 data-i18n="h2_2">Контроль бронирований</h2>
+					<ul class="list">
+						<li data-i18n="a1">Режим mode=master с отдельным интерфейсом.</li>
+						<li data-i18n="a2">Получение всех активных броней по датам и времени.</li>
+						<li data-i18n="a3">Уведомления о новых бронированиях мастерам.</li>
+						<li data-i18n="a4">Кликабельная ссылка для связи с клиентом.</li>
+						<li data-i18n="a5">Автоочистка устаревших броней.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result2Title">Результат</strong>
+						<p data-i18n="result2Text">Команда ресторана получает актуальную ленту бронирований и быстрее реагирует на новые заявки.</p>
+					</div>
+				</article>
+
+				<article class="card reveal delay-2" id="flow">
+					<span class="label" data-i18n="label3">Логика бронирования</span>
+					<h2 data-i18n="h2_3">Как работает сценарий</h2>
+					<div class="timeline">
+						<div class="step"><strong>1.</strong><span data-i18n="flow1">Пользователь открывает Mini App через /info.</span></div>
+						<div class="step"><strong>2.</strong><span data-i18n="flow2">Frontend запрашивает availability с датой, временем и гостями.</span></div>
+						<div class="step"><strong>3.</strong><span data-i18n="flow3">Backend фильтрует столы и исключает занятые интервалы.</span></div>
+						<div class="step"><strong>4.</strong><span data-i18n="flow4">POST /api/booking создает бронь и отправляет уведомления.</span></div>
+					</div>
+				</article>
+
+				<article class="card reveal delay-3" id="stack">
+					<span class="label" data-i18n="label4">Технологии</span>
+					<h2 data-i18n="h2_4">Стек и архитектура</h2>
+					<ul class="list">
+						<li data-i18n="s1">FastAPI backend: API + раздача фронтенда.</li>
+						<li data-i18n="s2">Aiogram-бот с командами user и master.</li>
+						<li data-i18n="s3">PostgreSQL + SQLAlchemy async.</li>
+						<li data-i18n="s4">Vanilla JS Telegram Mini App фронтенд.</li>
+						<li data-i18n="s5">Структура: app, database, frontend, telegrem_bot.</li>
+					</ul>
+					<div class="chips">
+						<span class="chip">FastAPI</span>
+						<span class="chip">Aiogram</span>
+						<span class="chip">PostgreSQL</span>
+						<span class="chip">SQLAlchemy Async</span>
+						<span class="chip">Telegram Mini App</span>
+					</div>
+				</article>
+			</section>
+		</main>
+
+		<script>
+			const translations = {
+				ru: {
+					brand: "Restaurant Reservation Bot",
+					state: "FastAPI + Telegram Mini App + PostgreSQL",
+					kicker: "Портфолио-проект",
+					heroTitle: "Система бронирования столиков через Telegram-бота и Mini App",
+					heroCopy:
+						"Проект restaurant_reservation_bot объединяет Telegram-бота на aiogram, FastAPI backend и Mini App интерфейс. Пользователь бронирует стол, видит свои брони и может их отменить, а мастер получает доступ к общей ленте бронирований и уведомлениям.",
+					btnFeatures: "Функции",
+					btnFlow: "Логика",
+					btnStack: "Стек",
+					stat1: "буфер занятости столика",
+					stat2: "режима интерфейса: user + master",
+					stat3: "основных API для брони",
+					line1: "GET /api/availability - доступность столов",
+					line2: "POST /api/booking - создание брони",
+					line3: "GET /api/my-bookings - мои брони",
+					line4: "DELETE /api/my-bookings/{id} - отмена",
+					line5: "GET /api/master-bookings - мастер-режим",
+					label1: "Пользовательская зона",
+					h2_1: "Основной функционал",
+					f1: "Выбор даты, времени и количества гостей в Mini App.",
+					f2: "Подбор подходящих столов по вместимости.",
+					f3: "Проверка конфликтов брони с буфером 2.5 часа.",
+					f4: "Просмотр и отмена только своих бронирований.",
+					f5: "Подтверждения и сообщения через Telegram.",
+					result1Title: "Результат",
+					result1Text: "Пользователь получает быстрый и прозрачный сценарий резерва столика прямо внутри Telegram.",
+					label2: "Мастер-режим",
+					h2_2: "Контроль бронирований",
+					a1: "Режим mode=master с отдельным интерфейсом.",
+					a2: "Получение всех активных броней по датам и времени.",
+					a3: "Уведомления о новых бронированиях мастерам.",
+					a4: "Кликабельная ссылка для связи с клиентом.",
+					a5: "Автоочистка устаревших броней.",
+					result2Title: "Результат",
+					result2Text: "Команда ресторана получает актуальную ленту бронирований и быстрее реагирует на новые заявки.",
+					label3: "Логика бронирования",
+					h2_3: "Как работает сценарий",
+					flow1: "Пользователь открывает Mini App через /info.",
+					flow2: "Frontend запрашивает availability с датой, временем и гостями.",
+					flow3: "Backend фильтрует столы и исключает занятые интервалы.",
+					flow4: "POST /api/booking создает бронь и отправляет уведомления.",
+					label4: "Технологии",
+					h2_4: "Стек и архитектура",
+					s1: "FastAPI backend: API + раздача фронтенда.",
+					s2: "Aiogram-бот с командами user и master.",
+					s3: "PostgreSQL + SQLAlchemy async.",
+					s4: "Vanilla JS Telegram Mini App фронтенд.",
+					s5: "Структура: app, database, frontend, telegrem_bot.",
+					footerText: "Проект restaurant_reservation_bot • One-page portfolio presentation"
+				},
+				en: {
+					brand: "Restaurant Reservation Bot",
+					state: "FastAPI + Telegram Mini App + PostgreSQL",
+					kicker: "Portfolio Project",
+					heroTitle: "Table reservation system via Telegram bot and Mini App",
+					heroCopy:
+						"The restaurant_reservation_bot project combines an aiogram Telegram bot, FastAPI backend, and Mini App interface. Users book tables, view and cancel their bookings, while masters get access to all reservations and notifications.",
+					btnFeatures: "Features",
+					btnFlow: "Flow",
+					btnStack: "Stack",
+					stat1: "table occupancy buffer",
+					stat2: "interface modes: user + master",
+					stat3: "core booking API methods",
+					line1: "GET /api/availability - table availability",
+					line2: "POST /api/booking - create booking",
+					line3: "GET /api/my-bookings - my bookings",
+					line4: "DELETE /api/my-bookings/{id} - cancel booking",
+					line5: "GET /api/master-bookings - master mode",
+					label1: "User Area",
+					h2_1: "Core Functionality",
+					f1: "Select date, time, and guests in Mini App.",
+					f2: "Filter suitable tables by capacity.",
+					f3: "Check booking conflicts with a 2.5-hour buffer.",
+					f4: "View and cancel only own reservations.",
+					f5: "Confirmations and messages via Telegram.",
+					result1Title: "Result",
+					result1Text: "The user gets a fast and transparent table reservation flow directly inside Telegram.",
+					label2: "Master Mode",
+					h2_2: "Reservation Control",
+					a1: "Dedicated mode=master interface.",
+					a2: "Get all active reservations grouped by date and time.",
+					a3: "Master notifications for new reservations.",
+					a4: "Clickable link to contact the client.",
+					a5: "Automatic cleanup of outdated bookings.",
+					result2Title: "Result",
+					result2Text: "The restaurant team sees an up-to-date reservation stream and reacts faster to new requests.",
+					label3: "Booking Logic",
+					h2_3: "How the scenario works",
+					flow1: "User opens Mini App via /info.",
+					flow2: "Frontend requests availability with date, time, and guests.",
+					flow3: "Backend filters tables and excludes occupied intervals.",
+					flow4: "POST /api/booking creates a reservation and sends notifications.",
+					label4: "Technologies",
+					h2_4: "Stack and architecture",
+					s1: "FastAPI backend: API + frontend delivery.",
+					s2: "Aiogram bot with user and master commands.",
+					s3: "PostgreSQL + SQLAlchemy async.",
+					s4: "Vanilla JS Telegram Mini App frontend.",
+					s5: "Structure: app, database, frontend, telegrem_bot.",
+					footerText: "Project restaurant_reservation_bot • One-page portfolio presentation"
+				}
+			};
+
+			const ruButton = document.getElementById("lang-ru");
+			const enButton = document.getElementById("lang-en");
+
+			function setLanguage(language) {
+				document.documentElement.lang = language;
+				localStorage.setItem('preferredLanguage', language);
+				document.querySelectorAll("[data-i18n]").forEach((element) => {
+					const key = element.dataset.i18n;
+					const value = translations[language][key];
+					if (value) {
+						element.textContent = value;
+					}
+				});
+
+				ruButton.classList.toggle("active", language === "ru");
+				enButton.classList.toggle("active", language === "en");
+			}
+
+			// Load language from localStorage on page load
+			const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+			setLanguage(savedLanguage);
+
+			ruButton.addEventListener("click", () => setLanguage("ru"));
+			enButton.addEventListener("click", () => setLanguage("en"));
+		</script>
+	</body>
+</html>

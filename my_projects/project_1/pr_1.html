@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>КиноЗал | Портфолио-проект</title>
+		<meta
+			name="description"
+			content="Портфолио-презентация проекта КиноЗал: FastAPI, PostgreSQL, пользовательская зона, админ-панель, бронирование и email-верификация."
+		/>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg: #050505;
+				--paper: rgba(255, 255, 255, 0.04);
+				--ink: #ffffff;
+				--muted: rgba(255, 255, 255, 0.72);
+				--line: rgba(255, 255, 255, 0.18);
+				--brand: #ffffff;
+				--brand-2: #ffffff;
+				--accent-warm: rgba(255, 255, 255, 0.07);
+				--accent-cold: rgba(255, 255, 255, 0.06);
+				--hero: linear-gradient(140deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+				--shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: "Yanone Kaffeesatz", "Segoe UI", sans-serif;
+				color: var(--ink);
+				min-height: 100vh;
+				line-height: 1.5;
+				background:
+					radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
+					radial-gradient(circle at 82% 74%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
+					linear-gradient(140deg, #030303 0%, #0b0b0b 56%, #040404 100%);
+			}
+
+			.noise {
+				position: fixed;
+				inset: 0;
+				pointer-events: none;
+				opacity: 0.08;
+				background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.6px, transparent 0.6px);
+				background-size: 3px 3px;
+			}
+
+			.lang-btn {
+				width: 54px;
+				height: 34px;
+				border-radius: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				background: rgba(255, 255, 255, 0.04);
+				color: #ffffff;
+				font-family: "Yanone Kaffeesatz", sans-serif;
+				font-size: 22px;
+				letter-spacing: 0.06em;
+				cursor: pointer;
+				transition: all 0.25s ease;
+			}
+
+			.lang-btn:hover {
+				border-color: rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.08);
+			}
+
+			.lang-btn.active {
+				background: rgba(255, 255, 255, 0.18);
+				border-color: rgba(255, 255, 255, 0.45);
+			}
+
+			.page {
+				width: min(1140px, 92vw);
+				margin: 0 auto;
+				padding: 28px 0 42px;
+				position: relative;
+				z-index: 1;
+			}
+
+			.top {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 12px;
+				margin-bottom: 18px;
+				padding-left: 190px;
+			}
+
+			.brand {
+				font-family: "Yanone Kaffeesatz", sans-serif;
+				font-size: clamp(20px, 2.4vw, 29px);
+				font-weight: 700;
+			}
+
+			.state {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 999px;
+				padding: 8px 13px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.hero {
+				border: 1px solid var(--line);
+				border-radius: 26px;
+				padding: clamp(24px, 4vw, 44px);
+				background: var(--hero);
+				box-shadow: var(--shadow);
+				display: grid;
+				grid-template-columns: 1.2fr 0.8fr;
+				gap: 22px;
+			}
+
+			.kicker {
+				display: inline-block;
+				margin-bottom: 12px;
+				border: 1px solid var(--line);
+				background: var(--accent-warm);
+				border-radius: 999px;
+				padding: 6px 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.07em;
+				font-weight: 800;
+				font-size: 12px;
+				color: #ffffff;
+			}
+
+			h1,
+			h2,
+			h3 {
+				font-family: "Yanone Kaffeesatz", sans-serif;
+				line-height: 1.12;
+			}
+
+			h1 {
+				font-size: clamp(34px, 5vw, 66px);
+				max-width: 14ch;
+			}
+
+			.hero p {
+				margin-top: 14px;
+				color: var(--muted);
+				max-width: 63ch;
+			}
+
+			.cta {
+				margin-top: 22px;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			.btn {
+				display: inline-flex;
+				text-decoration: none;
+				border: 1px solid var(--line);
+				color: var(--ink);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 12px;
+				padding: 10px 16px;
+				font-weight: 700;
+				font-size: 14px;
+				transition: transform 180ms ease, box-shadow 180ms ease;
+			}
+
+			.btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+			}
+
+			.btn.primary {
+				background: rgba(255, 255, 255, 0.16);
+				border-color: rgba(255, 255, 255, 0.35);
+				color: #ffffff;
+			}
+
+			.window {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 18px;
+				overflow: hidden;
+			}
+
+			.window-top {
+				height: 36px;
+				border-bottom: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.03);
+				display: flex;
+				align-items: center;
+				gap: 7px;
+				padding: 0 11px;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.45);
+			}
+
+			.window-body {
+				padding: 14px;
+				display: grid;
+				gap: 8px;
+			}
+
+			.line {
+				border-radius: 10px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				padding: 8px 10px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.stats {
+				margin-top: 16px;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.stat {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 14px;
+				padding: 12px;
+			}
+
+			.stat strong {
+				display: block;
+				font-family: "Yanone Kaffeesatz", sans-serif;
+				font-size: 26px;
+				color: var(--brand-2);
+				line-height: 1;
+			}
+
+			.stat span {
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.grid {
+				margin-top: 20px;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 16px;
+			}
+
+			.card {
+				border: 1px solid var(--line);
+				border-radius: 20px;
+				background: var(--paper);
+				padding: clamp(18px, 2.4vw, 24px);
+				box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+			}
+
+			.label {
+				display: inline-block;
+				margin-bottom: 10px;
+				font-size: 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				font-weight: 800;
+				border-radius: 999px;
+				border: 1px solid var(--line);
+				background: var(--accent-cold);
+				color: #ffffff;
+				padding: 6px 10px;
+			}
+
+			.card h2 {
+				font-size: clamp(23px, 3vw, 34px);
+				margin-bottom: 10px;
+			}
+
+			.list {
+				padding-left: 18px;
+				display: grid;
+				gap: 8px;
+				color: var(--muted);
+			}
+
+			.chips {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				margin-top: 12px;
+			}
+
+			.chip {
+				font-size: 12px;
+				border: 1px solid var(--line);
+				border-radius: 999px;
+				padding: 6px 10px;
+				background: rgba(255, 255, 255, 0.06);
+				color: #ffffff;
+			}
+
+			.result {
+				margin-top: 14px;
+				border: 1px dashed rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 14px;
+				padding: 12px;
+			}
+
+			.result strong {
+				display: block;
+				color: #ffffff;
+				margin-bottom: 4px;
+			}
+
+			.footer {
+				margin-top: 18px;
+				text-align: center;
+				color: var(--muted);
+				font-size: 14px;
+			}
+
+			.footer a {
+				color: #ffffff;
+				text-decoration: underline;
+				text-underline-offset: 3px;
+			}
+
+			.reveal {
+				opacity: 0;
+				transform: translateY(16px);
+				animation: rise 680ms ease forwards;
+			}
+
+			.delay-1 { animation-delay: 0.12s; }
+			.delay-2 { animation-delay: 0.24s; }
+			.delay-3 { animation-delay: 0.36s; }
+
+			@keyframes rise {
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@media (max-width: 980px) {
+				.language-switch {
+					top: -4px;
+					left: 0;
+				}
+
+				.top {
+					padding-left: 0;
+					padding-top: 44px;
+				}
+
+				.hero,
+				.grid {
+					grid-template-columns: 1fr;
+				}
+
+				.stats {
+					grid-template-columns: 1fr;
+				}
+
+				.page {
+					padding-top: 20px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="noise" aria-hidden="true"></div>
+
+		<main class="page">
+
+			<section class="hero reveal delay-1">
+				<article>
+					<h1 data-i18n="heroTitle">Веб-сервис кинотеатра с личным кабинетом и админ панелью</h1>
+					<p data-i18n="heroCopy">
+						Полноценное веб-приложение для кинотеатра с двумя зонами доступа:
+						пользовательской и административной. Пользователи просматривают
+						фильмы, выбирают места, бронируют сеансы и управляют профилем,
+						администратор управляет залами, фильмами, расписанием сеансов и
+						аналитикой бронирований.
+					</p>
+					<div class="stats" aria-label="Краткие метрики проекта">
+						<div class="stat">
+							<strong>2</strong>
+							<span data-i18n="stat1">зоны доступа: user + admin</span>
+						</div>
+						<div class="stat">
+							<strong>10+</strong>
+							<span data-i18n="stat2">основных API-эндпоинтов</span>
+						</div>
+						<div class="stat">
+							<strong>24h</strong>
+							<span data-i18n="stat3">TTL токена email-верификации</span>
+						</div>
+					</div>
+				</article>
+
+				<aside class="window" aria-label="Превью ключевых экранов" data-i18n-aria="previewAria">
+					<div class="window-top">
+						<span class="dot"></span>
+						<span class="dot"></span>
+						<span class="dot"></span>
+					</div>
+					<div class="window-body">
+						<div class="line" data-i18n="line1">/movies - каталог фильмов</div>
+						<div class="line" data-i18n="line2">/session/{id} - выбор мест в зале</div>
+						<div class="line" data-i18n="line3">/profile - история бронирований</div>
+						<div class="line" data-i18n="line4">/admin/* - управление контентом</div>
+						<div class="line" data-i18n="line5">JWT auth + email verification</div>
+					</div>
+				</aside>
+			</section>
+
+			<section class="grid">
+				<article class="card reveal delay-2" id="features">
+					<span class="label" data-i18n="label1">Пользовательская часть</span>
+					<h2 data-i18n="h2_1">Ключевой функционал</h2>
+					<ul class="list">
+						<li data-i18n="f1">Регистрация и вход с проверкой email-подтверждения.</li>
+						<li data-i18n="f2">Каталог фильмов и страница фильма с доступными сеансами.</li>
+						<li data-i18n="f3">Выбор мест и создание бронирования на выбранный сеанс.</li>
+						<li data-i18n="f4">Личный кабинет с историей и отменой бронирований.</li>
+						<li data-i18n="f5">Проверка авторизации через JWT и защищенные маршруты.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result1Title">Результат</strong>
+						<p data-i18n="result1Text">Пользователь получает понятный сценарий от регистрации до покупки места без перехода на сторонние сервисы.</p>
+					</div>
+				</article>
+
+				<article class="card reveal delay-3" id="architecture">
+					<span class="label" data-i18n="label2">Административная часть</span>
+					<h2 data-i18n="h2_2">Управление кинотеатром</h2>
+					<ul class="list">
+						<li data-i18n="a1">CRUD для залов, фильмов и киносеансов.</li>
+						<li data-i18n="a2">Просмотр бронирований по сеансам и в целом по системе.</li>
+						<li data-i18n="a3">Базовая статистика для оценки загрузки и продаж.</li>
+						<li data-i18n="a4">Отдельная аутентификация администратора через JWT.</li>
+						<li data-i18n="a5">Логирование запросов и ошибок с ротацией файлов логов.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result2Title">Результат</strong>
+						<p data-i18n="result2Text">Админ-панель покрывает операционные задачи кинотеатра и ускоряет обновление расписания и контента.</p>
+					</div>
+				</article>
+
+				<article class="card reveal delay-2" id="stack">
+					<span class="label" data-i18n="label3">Технологический стек</span>
+					<h2 data-i18n="h2_3">Backend и инфраструктура</h2>
+					<ul class="list">
+						<li data-i18n="s1">Python 3.11+, FastAPI, Uvicorn.</li>
+						<li data-i18n="s2">SQLAlchemy 2.0 async + asyncpg + PostgreSQL.</li>
+						<li data-i18n="s3">Pydantic v2 для валидации схем и ответов API.</li>
+						<li data-i18n="s4">JWT (python-jose), passlib + bcrypt для безопасности.</li>
+						<li data-i18n="s5">dotenv-конфигурация и SMTP email-подтверждение.</li>
+					</ul>
+					<div class="chips">
+						<span class="chip" data-i18n="chip1">FastAPI</span>
+						<span class="chip" data-i18n="chip2">PostgreSQL</span>
+						<span class="chip" data-i18n="chip3">SQLAlchemy Async</span>
+						<span class="chip" data-i18n="chip4">JWT</span>
+						<span class="chip" data-i18n="chip5">SMTP</span>
+					</div>
+				</article>
+
+				<article class="card reveal delay-3">
+					<span class="label" data-i18n="label4">Архитектура проекта</span>
+					<h2 data-i18n="h2_4">Как организован код</h2>
+					<ul class="list">
+						<li data-i18n="c1">app/routers - отдельные роутеры для users/admin/movies.</li>
+						<li data-i18n="c2">app/database - модели и инициализация базы данных.</li>
+						<li data-i18n="c3">app/utils - jwt, email и security-утилиты.</li>
+						<li data-i18n="c4">frontend/users и frontend/admin - разделенные UI-зоны.</li>
+						<li data-i18n="c5">main_project.py - точка запуска сервера.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result3Title">Плюс для развития</strong>
+						<p data-i18n="result3Text">Структура готова к масштабированию: легко добавлять роли, платежные интеграции и уведомления.</p>
+					</div>
+				</article>
+			</section>
+		</main>
+
+		<script>
+			const translations = {
+				ru: {
+					brand: 'КиноЗал • Cinema Platform',
+					state: 'FastAPI + PostgreSQL',
+					kicker: 'Портфолио-проект',
+					heroTitle: 'Веб-сервис кинотеатра с личным кабинетом и админ панелью',
+					heroCopy: 'Полноценное веб-приложение для кинотеатра с двумя зонами доступа: пользовательской и административной. Пользователи просматривают фильмы, выбирают места, бронируют сеансы и управляют профилем, администратор управляет залами, фильмами, расписанием сеансов и аналитикой бронирований.',
+					btnFeatures: 'Функционал',
+					btnStack: 'Стек',
+					btnArchitecture: 'Архитектура',
+					stat1: 'зоны доступа: user + admin',
+					stat2: 'основных API-эндпоинтов',
+					stat3: 'TTL токена email-верификации',
+					previewAria: 'Превью ключевых экранов',
+					line1: '/movies - каталог фильмов',
+					line2: '/session/{id} - выбор мест в зале',
+					line3: '/profile - история бронирований',
+					line4: '/admin/* - управление контентом',
+					line5: 'JWT auth + email verification',
+					label1: 'Пользовательская часть',
+					h2_1: 'Ключевой функционал',
+					f1: 'Регистрация и вход с проверкой email-подтверждения.',
+					f2: 'Каталог фильмов и страница фильма с доступными сеансами.',
+					f3: 'Выбор мест и создание бронирования на выбранный сеанс.',
+					f4: 'Личный кабинет с историей и отменой бронирований.',
+					f5: 'Проверка авторизации через JWT и защищенные маршруты.',
+					result1Title: 'Результат',
+					result1Text: 'Пользователь получает понятный сценарий от регистрации до покупки места без перехода на сторонние сервисы.',
+					label2: 'Административная часть',
+					h2_2: 'Управление кинотеатром',
+					a1: 'CRUD для залов, фильмов и киносеансов.',
+					a2: 'Просмотр бронирований по сеансам и в целом по системе.',
+					a3: 'Базовая статистика для оценки загрузки и продаж.',
+					a4: 'Отдельная аутентификация администратора через JWT.',
+					a5: 'Логирование запросов и ошибок с ротацией файлов логов.',
+					result2Title: 'Результат',
+					result2Text: 'Админ-панель покрывает операционные задачи кинотеатра и ускоряет обновление расписания и контента.',
+					label3: 'Технологический стек',
+					h2_3: 'Backend и инфраструктура',
+					s1: 'Python 3.11+, FastAPI, Uvicorn.',
+					s2: 'SQLAlchemy 2.0 async + asyncpg + PostgreSQL.',
+					s3: 'Pydantic v2 для валидации схем и ответов API.',
+					s4: 'JWT (python-jose), passlib + bcrypt для безопасности.',
+					s5: 'dotenv-конфигурация и SMTP email-подтверждение.',
+					chip1: 'FastAPI',
+					chip2: 'PostgreSQL',
+					chip3: 'SQLAlchemy Async',
+					chip4: 'JWT',
+					chip5: 'SMTP',
+					label4: 'Архитектура проекта',
+					h2_4: 'Как организован код',
+					c1: 'app/routers - отдельные роутеры для users/admin/movies.',
+					c2: 'app/database - модели и инициализация базы данных.',
+					c3: 'app/utils - jwt, email и security-утилиты.',
+					c4: 'frontend/users и frontend/admin - разделенные UI-зоны.',
+					c5: 'main_project.py - точка запуска сервера.',
+					result3Title: 'Плюс для развития',
+					result3Text: 'Структура готова к масштабированию: легко добавлять роли, платежные интеграции и уведомления.',
+					footerText: 'Проект: kinoeatr_website • Формат: portfolio one-page presentation'
+				},
+				en: {
+					brand: 'KinoZal • Cinema Platform',
+					state: 'FastAPI + PostgreSQL',
+					kicker: 'Portfolio Project',
+					heroTitle: 'Cinema web service with user account and admin panel',
+					heroCopy: 'A full-featured web application for a cinema with two access zones: user and admin. Users browse movies, pick seats, book sessions, and manage their profile, while the administrator manages halls, movies, session schedules, and booking analytics.',
+					btnFeatures: 'Features',
+					btnStack: 'Stack',
+					btnArchitecture: 'Architecture',
+					stat1: 'access zones: user + admin',
+					stat2: 'core API endpoints',
+					stat3: 'email verification token TTL',
+					previewAria: 'Preview of key screens',
+					line1: '/movies - movie catalog',
+					line2: '/session/{id} - seat selection in hall',
+					line3: '/profile - booking history',
+					line4: '/admin/* - content management',
+					line5: 'JWT auth + email verification',
+					label1: 'User Side',
+					h2_1: 'Core Functionality',
+					f1: 'Registration and login with email confirmation validation.',
+					f2: 'Movie catalog and movie page with available sessions.',
+					f3: 'Seat selection and booking creation for a selected session.',
+					f4: 'Personal account with booking history and cancellations.',
+					f5: 'JWT authorization checks and protected routes.',
+					result1Title: 'Result',
+					result1Text: 'The user gets a clear flow from registration to seat purchase without switching to external services.',
+					label2: 'Administrative Side',
+					h2_2: 'Cinema Management',
+					a1: 'CRUD for halls, movies, and cinema sessions.',
+					a2: 'View bookings by sessions and across the whole system.',
+					a3: 'Basic statistics to evaluate occupancy and sales.',
+					a4: 'Separate administrator authentication via JWT.',
+					a5: 'Request and error logging with log file rotation.',
+					result2Title: 'Result',
+					result2Text: 'The admin panel covers cinema operations and accelerates schedule and content updates.',
+					label3: 'Technology Stack',
+					h2_3: 'Backend and Infrastructure',
+					s1: 'Python 3.11+, FastAPI, Uvicorn.',
+					s2: 'SQLAlchemy 2.0 async + asyncpg + PostgreSQL.',
+					s3: 'Pydantic v2 for API schema and response validation.',
+					s4: 'JWT (python-jose), passlib + bcrypt for security.',
+					s5: 'dotenv configuration and SMTP email confirmation.',
+					chip1: 'FastAPI',
+					chip2: 'PostgreSQL',
+					chip3: 'SQLAlchemy Async',
+					chip4: 'JWT',
+					chip5: 'SMTP',
+					label4: 'Project Architecture',
+					h2_4: 'How the code is organized',
+					c1: 'app/routers - separate routers for users/admin/movies.',
+					c2: 'app/database - models and database initialization.',
+					c3: 'app/utils - jwt, email, and security utilities.',
+					c4: 'frontend/users and frontend/admin - separated UI zones.',
+					c5: 'main_project.py - server entry point.',
+					result3Title: 'Growth Advantage',
+					result3Text: 'The structure is ready for scaling: easy to add roles, payment integrations, and notifications.',
+					footerText: 'Project: kinoeatr_website • Format: portfolio one-page presentation'
+				}
+			};
+
+			const ruButton = document.getElementById('lang-ru');
+			const enButton = document.getElementById('lang-en');
+
+			function setLanguage(language) {
+				document.documentElement.lang = language;
+				localStorage.setItem('preferredLanguage', language);
+				document.querySelectorAll('[data-i18n]').forEach((element) => {
+					const key = element.dataset.i18n;
+					const value = translations[language][key];
+					if (value) {
+						element.textContent = value;
+					}
+				});
+
+				document.querySelectorAll('[data-i18n-aria]').forEach((element) => {
+					const key = element.dataset.i18nAria;
+					const value = translations[language][key];
+					if (value) {
+						element.setAttribute('aria-label', value);
+					}
+				});
+
+				ruButton.classList.toggle('active', language === 'ru');
+				enButton.classList.toggle('active', language === 'en');
+			}
+
+			// Load language from localStorage on page load
+			const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+			setLanguage(savedLanguage);
+
+			ruButton.addEventListener('click', () => setLanguage('ru'));
+			enButton.addEventListener('click', () => setLanguage('en'));
+		</script>
+	</body>
+</html>

@@ -537,12 +537,12 @@
             <div class="works-container">
                 <div class="works-title-vertical" data-i18n="worksTitle">МОИ РАБОТЫ</div>
                 <div class="works-grid">
-                    <a href="../my_projects/project_1/index.html" class="project-card"><span class="project-card-label" data-i18n="project1">Проект 1</span></a>
-                    <a href="../my_projects/project_2/index.html" class="project-card"><span class="project-card-label" data-i18n="project2">Проект 2</span></a>
-                    <a href="../my_projects/project_3/index.html" class="project-card"><span class="project-card-label" data-i18n="project3">Проект 3</span></a>
-                    <a href="../my_projects/project_4/index.html" class="project-card"><span class="project-card-label" data-i18n="project4">Проект 4</span></a>
-                    <a href="../my_projects/project_5/index.html" class="project-card"><span class="project-card-label" data-i18n="project5">Проект 5</span></a>
-                    <a href="../my_projects/project_6/index.html" class="project-card"><span class="project-card-label" data-i18n="project6">Проект 6</span></a>
+                    <a href="../my_projects/project_1/pr_1.html" class="project-card"><span class="project-card-label" data-i18n="project1">Проект 1</span></a>
+                    <a href="../my_projects/project_2/pr_2.html" class="project-card"><span class="project-card-label" data-i18n="project2">Проект 2</span></a>
+                    <a href="../my_projects/project_3/pr_3.html" class="project-card"><span class="project-card-label" data-i18n="project3">Проект 3</span></a>
+                    <a href="../my_projects/project_4/pr_4.html" class="project-card"><span class="project-card-label" data-i18n="project4">Проект 4</span></a>
+                    <a href="../my_projects/project_5/pr_5.html" class="project-card"><span class="project-card-label" data-i18n="project5">Проект 5</span></a>
+                    <a href="../my_projects/project_6/pr_6.html" class="project-card"><span class="project-card-label" data-i18n="project6">Проект 6</span></a>
                 </div>
             </div>
         </section>
@@ -599,6 +599,7 @@
 
         function setLanguage(language) {
             document.documentElement.lang = language;
+            localStorage.setItem('preferredLanguage', language);
             document.querySelectorAll('[data-i18n]').forEach((element) => {
                 const key = element.dataset.i18n;
                 const value = translations[language][key];
@@ -610,6 +611,10 @@
             ruButton.classList.toggle('active', language === 'ru');
             enButton.classList.toggle('active', language === 'en');
         }
+
+        // Load language from localStorage on page load
+        const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+        setLanguage(savedLanguage);
 
         ruButton.addEventListener('click', () => setLanguage('ru'));
         enButton.addEventListener('click', () => setLanguage('en'));

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Портфолио | Парсинг скрипт</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #050505;
+        --ink: #ffffff;
+        --accent: rgba(255, 255, 255, 0.78);
+        --accent-soft: rgba(255, 255, 255, 0.08);
+        --card: rgba(255, 255, 255, 0.05);
+        --line: rgba(255, 255, 255, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Yanone Kaffeesatz", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
+          radial-gradient(circle at 82% 74%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
+          linear-gradient(140deg, #030303 0%, #0b0b0b 56%, #040404 100%);
+        min-height: 100vh;
+      }
+
+      .texture {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.1;
+        background-image: linear-gradient(transparent 50%, rgba(255, 255, 255, 0.05) 50%);
+        background-size: 100% 4px;
+      }
+
+      .container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+        padding-top: 84px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .lang-btn {
+        width: 54px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.04);
+        color: #ffffff;
+        font-family: "Yanone Kaffeesatz", sans-serif;
+        font-size: 22px;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+
+      .lang-btn.active {
+        background: rgba(255, 255, 255, 0.18);
+        border-color: rgba(255, 255, 255, 0.45);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      .hero-main,
+      .hero-side,
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 16px 45px rgba(140, 97, 66, 0.12);
+      }
+
+      .badge {
+        display: inline-flex;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: #8a3f1f;
+        font-size: 13px;
+        letter-spacing: 0.03em;
+      }
+
+      h1,
+      h2 {
+        margin: 14px 0 16px;
+        font-family: "Yanone Kaffeesatz", serif;
+        line-height: 1.1;
+      }
+
+      h1 {
+        font-size: clamp(32px, 6vw, 56px);
+      }
+
+      h2 {
+        font-size: clamp(24px, 4vw, 34px);
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.7;
+        font-size: 16px;
+      }
+
+      .hero-side {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .metric {
+        border-top: 1px dashed var(--line);
+        padding-top: 14px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 30px;
+        color: var(--accent);
+        line-height: 1;
+      }
+
+      .sections {
+        margin-top: 24px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: #fff;
+        font-size: 14px;
+      }
+
+      .result {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .result img {
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        display: block;
+      }
+
+      .timeline {
+        margin-top: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .timeline-item {
+        border-left: 3px solid var(--accent);
+        padding-left: 12px;
+      }
+
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 14px;
+      }
+
+      .footer a {
+        color: #ffffff;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(16px);
+        animation: rise 650ms ease forwards;
+      }
+
+      .reveal.delay-1 {
+        animation-delay: 0.12s;
+      }
+
+      .reveal.delay-2 {
+        animation-delay: 0.25s;
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .result {
+          grid-template-columns: 1fr;
+        }
+
+        .container {
+          padding-top: 78px;
+        }
+
+        .hero-main,
+        .hero-side,
+        .card {
+          border-radius: 18px;
+          padding: 22px;
+        }
+      }
+
+      .hero-main,
+      .hero-side,
+      .card,
+      .chip,
+      .result img {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.32);
+      }
+
+      .badge {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      p,
+      .timeline-item,
+      .footer {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      h1,
+      h2,
+      .metric strong {
+        color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="texture" aria-hidden="true"></div>
+    <main class="container">
+      <section class="hero reveal">
+        <article class="hero-main">
+          <h1>Парсинг скрипт для каталога маркетплейса</h1>
+          <p>
+            Этот проект автоматизирует сбор данных с динамического каталога и
+            формирует удобную базу для аналитики, мониторинга ассортимента и
+            дальнейшей загрузки в CRM или BI-инструменты. Скрипт адаптирован под
+            фильтрацию по заданным критериям и выгрузку в нужный формат.
+          </p>
+        </article>
+
+        <aside class="hero-side">
+          <div>
+            <span class="badge">Роль</span>
+            <h2>Python-разработчик</h2>
+            <p>
+              Реализовал полный цикл: от эмуляции пользовательских действий в
+              браузере до очистки HTML и структурирования итогового набора
+              данных.
+            </p>
+          </div>
+          <div class="metric">
+            <strong>4+</strong>
+            <p>форматов экспорта: CSV, Excel, JSON, Google Sheets</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="sections">
+        <article class="card reveal delay-1">
+          <span class="badge">Технологии</span>
+          <h2>Стек проекта</h2>
+          <p>
+            Для надежной работы с динамическими страницами использован Playwright,
+            а для точного извлечения данных из HTML — BeautifulSoup. Такой подход
+            позволяет объединить устойчивую навигацию по сайту и гибкий парсинг
+            структуры контента.
+          </p>
+          <div class="stack">
+            <span class="chip">Python</span>
+            <span class="chip">Playwright</span>
+            <span class="chip">BeautifulSoup</span>
+            <span class="chip">CSV / Excel / JSON</span>
+            <span class="chip">Google Sheets API</span>
+          </div>
+        </article>
+
+        <article class="card reveal delay-2">
+          <span class="badge">Процесс</span>
+          <h2>Как устроен пайплайн</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              1. Открытие динамического каталога и имитация действий пользователя
+              для подгрузки карточек.
+            </div>
+            <div class="timeline-item">
+              2. Сбор HTML-структуры и извлечение целевых полей по заданному
+              критерию.
+            </div>
+            <div class="timeline-item">
+              3. Очистка, нормализация и сохранение данных в выбранном формате
+              для дальнейшей работы команды.
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const ruButton = document.getElementById('lang-ru');
+      const enButton = document.getElementById('lang-en');
+      const normalize = (value) => value.replace(/\s+/g, ' ').trim();
+
+      const textMap = {
+        'Портфолио проекта': 'Portfolio project',
+        'Парсинг скрипт для каталога маркетплейса': 'Parsing script for marketplace catalog',
+        'Этот проект автоматизирует сбор данных с динамического каталога и формирует удобную базу для аналитики, мониторинга ассортимента и дальнейшей загрузки в CRM или BI-инструменты. Скрипт адаптирован под фильтрацию по заданным критериям и выгрузку в нужный формат.': 'This project automates data collection from a dynamic catalog and builds a convenient base for analytics, assortment monitoring, and further upload to CRM or BI tools. The script is adapted for filtering by criteria and export to the required format.',
+        'Роль': 'Role',
+        'Python-разработчик': 'Python developer',
+        'Реализовал полный цикл: от эмуляции пользовательских действий в браузере до очистки HTML и структурирования итогового набора данных.': 'Implemented the full cycle: from emulating user actions in browser to HTML cleanup and structuring the final dataset.',
+        'форматов экспорта: CSV, Excel, JSON, Google Sheets': 'export formats: CSV, Excel, JSON, Google Sheets',
+        'Технологии': 'Technologies',
+        'Стек проекта': 'Project stack',
+        'Для надежной работы с динамическими страницами использован Playwright, а для точного извлечения данных из HTML — BeautifulSoup. Такой подход позволяет объединить устойчивую навигацию по сайту и гибкий парсинг структуры контента.': 'For reliable work with dynamic pages, Playwright is used, and for accurate HTML data extraction — BeautifulSoup. This approach combines stable website navigation and flexible content structure parsing.',
+        'Процесс': 'Process',
+        'Как устроен пайплайн': 'How the pipeline works',
+        '1. Открытие динамического каталога и имитация действий пользователя для подгрузки карточек.': '1. Open dynamic catalog and emulate user actions to load cards.',
+        '2. Сбор HTML-структуры и извлечение целевых полей по заданному критерию.': '2. Collect HTML structure and extract target fields by criteria.',
+        '3. Очистка, нормализация и сохранение данных в выбранном формате для дальнейшей работы команды.': '3. Clean, normalize, and save data in selected format for further team work.',
+        'Результат': 'Result',
+        'Скриншот готового решения': 'Screenshot of final solution',
+        'Ниже представлен итог выполнения: пример рабочего результата, подтверждающий корректный сбор и подготовку данных. Решение масштабируется под другие категории и может использоваться как основа для регулярного обновления базы.': 'Below is the final output: an example of a working result confirming correct data collection and preparation. The solution scales to other categories and can be used as a base for regular database updates.',
+        'Проект: автоматизация сбора данных и подготовка структуры для аналитики и принятия решений.': 'Project: data collection automation and structure preparation for analytics and decision-making.'
+      };
+
+      const nodes = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        if (node.parentElement && node.parentElement.closest('.language-switch, script, style')) {
+          continue;
+        }
+        if (normalize(node.textContent).length > 0) {
+          nodes.push({ node, original: node.textContent });
+        }
+      }
+
+      function setLanguage(lang) {
+        document.documentElement.lang = lang;
+        localStorage.setItem('preferredLanguage', lang);
+        nodes.forEach(({ node, original }) => {
+          const key = normalize(original);
+          if (lang === 'en' && textMap[key]) {
+            node.textContent = textMap[key];
+          } else {
+            node.textContent = original;
+          }
+        });
+        ruButton.classList.toggle('active', lang === 'ru');
+        enButton.classList.toggle('active', lang === 'en');
+      }
+
+      // Load language from localStorage on page load
+      const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+      setLanguage(savedLanguage);
+
+      ruButton.addEventListener('click', () => setLanguage('ru'));
+      enButton.addEventListener('click', () => setLanguage('en'));
+    </script>
+  </body>
+</html>

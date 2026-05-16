@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Price Tracker v2 | Portfolio One Page</title>
+		<meta
+			name="description"
+			content="Одностраничная презентация проекта price_tracker_v2: Telegram-бот, FastAPI API, Mini App, Celery, Redis, PostgreSQL и трекинг цен товаров."
+		/>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg: #050505;
+				--paper: rgba(255, 255, 255, 0.04);
+				--ink: #ffffff;
+				--muted: rgba(255, 255, 255, 0.74);
+				--line: rgba(255, 255, 255, 0.18);
+				--line-strong: rgba(255, 255, 255, 0.35);
+				--hero: linear-gradient(140deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+				--shadow: 0 20px 48px rgba(0, 0, 0, 0.46);
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: "Yanone Kaffeesatz", "Segoe UI", sans-serif;
+				color: var(--ink);
+				min-height: 100vh;
+				line-height: 1.5;
+				background:
+					radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
+					radial-gradient(circle at 84% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
+					linear-gradient(140deg, #020202 0%, #0a0a0a 56%, #040404 100%);
+			}
+
+			.noise {
+				position: fixed;
+				inset: 0;
+				pointer-events: none;
+				opacity: 0.08;
+				background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.6px, transparent 0.6px);
+				background-size: 3px 3px;
+			}
+
+			.page {
+				width: min(1160px, 92vw);
+				margin: 0 auto;
+				padding: 28px 0 44px;
+				padding-left: 20px;
+			}
+
+			.lang-btn {
+				width: 54px;
+				height: 34px;
+				border-radius: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				background: rgba(255, 255, 255, 0.04);
+				color: #ffffff;
+				font-family: "Yanone Kaffeesatz", sans-serif;
+				font-size: 22px;
+				letter-spacing: 0.06em;
+				cursor: pointer;
+				transition: all 0.25s ease;
+			}
+
+			.lang-btn:hover {
+				border-color: rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.08);
+			}
+
+			.lang-btn.active {
+				background: rgba(255, 255, 255, 0.18);
+				border-color: rgba(255, 255, 255, 0.45);
+			}
+
+			.brand {
+				font-size: clamp(22px, 2.6vw, 30px);
+				font-weight: 700;
+			}
+
+			.state {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 999px;
+				padding: 8px 13px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			h1,
+			h2 {
+				line-height: 1.12;
+			}
+
+			.hero {
+				border: 1px solid var(--line);
+				border-radius: 26px;
+				padding: clamp(24px, 4vw, 44px);
+				background: var(--hero);
+				box-shadow: var(--shadow);
+				display: grid;
+				grid-template-columns: 1.2fr 0.8fr;
+				gap: 22px;
+			}
+
+			.kicker {
+				display: inline-block;
+				margin-bottom: 12px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.06);
+				border-radius: 999px;
+				padding: 6px 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.07em;
+				font-weight: 800;
+				font-size: 12px;
+			}
+
+			h1 {
+				font-size: clamp(36px, 5.2vw, 68px);
+				max-width: 14ch;
+			}
+
+			.hero p {
+				margin-top: 14px;
+				color: var(--muted);
+				max-width: 65ch;
+			}
+
+			.btn {
+				display: inline-flex;
+				text-decoration: none;
+				border: 1px solid var(--line);
+				color: var(--ink);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 12px;
+				padding: 10px 16px;
+				font-weight: 700;
+				font-size: 14px;
+				transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+			}
+
+			.btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+				border-color: var(--line-strong);
+			}
+
+			.btn.primary {
+				background: rgba(255, 255, 255, 0.16);
+				border-color: rgba(255, 255, 255, 0.35);
+			}
+
+			.stats {
+				margin-top: 16px;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.stat {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 14px;
+				padding: 12px;
+			}
+
+			.stat strong {
+				display: block;
+				font-size: 26px;
+				line-height: 1;
+			}
+
+			.stat span {
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.window {
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 18px;
+				overflow: hidden;
+			}
+
+			.window-top {
+				height: 36px;
+				border-bottom: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.03);
+				display: flex;
+				align-items: center;
+				gap: 7px;
+				padding: 0 11px;
+			}
+
+			.dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.46);
+			}
+
+			.window-body {
+				padding: 14px;
+				display: grid;
+				gap: 8px;
+			}
+
+			.line {
+				border-radius: 10px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.04);
+				padding: 8px 10px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.grid {
+				margin-top: 20px;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 16px;
+			}
+
+			.card {
+				border: 1px solid var(--line);
+				border-radius: 20px;
+				background: var(--paper);
+				padding: clamp(18px, 2.4vw, 24px);
+				box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+			}
+
+			.label {
+				display: inline-block;
+				margin-bottom: 10px;
+				font-size: 11px;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				font-weight: 800;
+				border-radius: 999px;
+				border: 1px solid var(--line);
+				background: rgba(255, 255, 255, 0.06);
+				padding: 6px 10px;
+			}
+
+			.card h2 {
+				font-size: clamp(24px, 3vw, 34px);
+				margin-bottom: 10px;
+			}
+
+			.list {
+				padding-left: 18px;
+				display: grid;
+				gap: 8px;
+				color: var(--muted);
+			}
+
+			.chips {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				margin-top: 12px;
+			}
+
+			.chip {
+				font-size: 12px;
+				border: 1px solid var(--line);
+				border-radius: 999px;
+				padding: 6px 10px;
+				background: rgba(255, 255, 255, 0.06);
+				color: var(--ink);
+			}
+
+			.result {
+				margin-top: 14px;
+				border: 1px dashed rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.05);
+				border-radius: 14px;
+				padding: 12px;
+			}
+
+			.result strong {
+				display: block;
+				margin-bottom: 4px;
+			}
+
+			.footer {
+				margin-top: 18px;
+				text-align: center;
+				color: var(--muted);
+				font-size: 14px;
+			}
+
+			.reveal {
+				opacity: 0;
+				transform: translateY(16px);
+				animation: rise 680ms ease forwards;
+			}
+
+			.delay-1 {
+				animation-delay: 0.12s;
+			}
+
+			.delay-2 {
+				animation-delay: 0.24s;
+			}
+
+			.delay-3 {
+				animation-delay: 0.36s;
+			}
+
+			@keyframes rise {
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@media (max-width: 980px) {
+				.language-switch {
+					top: -4px;
+					left: 0;
+				}
+
+				.top {
+					padding-left: 0;
+					padding-top: 44px;
+				}
+
+				.hero,
+				.grid {
+					grid-template-columns: 1fr;
+				}
+
+				.stats {
+					grid-template-columns: 1fr;
+				}
+
+				.page {
+					padding-top: 20px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="noise" aria-hidden="true"></div>
+
+		<main class="page">
+
+			<section class="hero reveal delay-1">
+				<article>
+					<h1 data-i18n="heroTitle">Сервис отслеживания цен с Telegram-ботом и Mini App</h1>
+					<p data-i18n="heroCopy">
+						Price Tracker v2 объединяет Telegram-бота, backend API и фронтенд Mini App в единую систему. Пользователь
+						добавляет ссылку на товар, система регулярно обновляет цену через фоновые задачи и отправляет уведомление,
+						когда цена падает.
+					</p>
+
+					<div class="stats" aria-label="Краткие метрики проекта">
+						<div class="stat">
+							<strong>4</strong>
+							<span data-i18n="stat1">процесса при полном запуске</span>
+						</div>
+						<div class="stat">
+							<strong>3+</strong>
+							<span data-i18n="stat2">источника данных: Bot, API, Mini App</span>
+						</div>
+						<div class="stat">
+							<strong>24/7</strong>
+							<span data-i18n="stat3">фоновый контроль динамики цен</span>
+						</div>
+					</div>
+				</article>
+
+				<aside class="window" aria-label="Сценарий работы приложения" data-i18n-aria="previewAria">
+					<div class="window-top">
+						<span class="dot"></span>
+						<span class="dot"></span>
+						<span class="dot"></span>
+					</div>
+					<div class="window-body">
+						<div class="line" data-i18n="line1">/adding_by_link -> добавить товар</div>
+						<div class="line" data-i18n="line2">Celery -> обновить цену по расписанию</div>
+						<div class="line" data-i18n="line3">Telegram -> уведомить о снижении</div>
+						<div class="line" data-i18n="line4">/show_all_products -> открыть Mini App</div>
+						<div class="line" data-i18n="line5">FastAPI -> вернуть товары пользователя</div>
+					</div>
+				</aside>
+			</section>
+
+			<section class="grid">
+				<article class="card reveal delay-2" id="features">
+					<span class="label" data-i18n="label1">Пользовательский сценарий</span>
+					<h2 data-i18n="h2_1">Ключевой функционал</h2>
+					<ul class="list">
+						<li data-i18n="f1">Добавление товара по ссылке прямо в Telegram-боте.</li>
+						<li data-i18n="f2">Хранение и история цен в PostgreSQL.</li>
+						<li data-i18n="f3">Автоматические обновления цен в фоне через Celery + Redis.</li>
+						<li data-i18n="f4">Уведомление, когда текущая цена стала ниже предыдущей.</li>
+						<li data-i18n="f5">Просмотр всех товаров в Telegram Mini App.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result1Title">Результат</strong>
+						<p data-i18n="result1Text">Пользователь получает простой путь: добавить ссылку, дождаться изменений и быстро открыть весь список товаров в Mini App.</p>
+					</div>
+				</article>
+
+				<article class="card reveal delay-3" id="architecture">
+					<span class="label" data-i18n="label2">Архитектура и процессы</span>
+					<h2 data-i18n="h2_2">Как работает система</h2>
+					<ul class="list">
+						<li data-i18n="a1">Бот принимает команды: /start, /adding_by_link, /show_all_products и другие.</li>
+						<li data-i18n="a2">API валидирует initData и отдает товары только текущему пользователю.</li>
+						<li data-i18n="a3">Worker обрабатывает задачи парсинга и обновляет данные в БД.</li>
+						<li data-i18n="a4">Планировщик периодически ставит задания на проверку цен.</li>
+						<li data-i18n="a5">Логика готова для расширения на Ozon (модуль в разработке).</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result2Title">Результат</strong>
+						<p data-i18n="result2Text">Компоненты разделены по ответственности, поэтому проект удобно поддерживать, тестировать и масштабировать.</p>
+					</div>
+				</article>
+
+				<article class="card reveal delay-2" id="stack">
+					<span class="label" data-i18n="label3">Технологический стек</span>
+					<h2 data-i18n="h2_3">Backend и инфраструктура</h2>
+					<ul class="list">
+						<li data-i18n="s1">Python 3.10+, FastAPI, Uvicorn.</li>
+						<li data-i18n="s2">PostgreSQL + SQLAlchemy (async) для хранения данных о товарах и ценах.</li>
+						<li data-i18n="s3">Celery + Redis для фоновых задач мониторинга.</li>
+						<li data-i18n="s4">aiogram для Telegram-бота и командного сценария.</li>
+						<li data-i18n="s5">HTML/CSS/JS фронтенд для Telegram Mini App.</li>
+					</ul>
+					<div class="chips">
+						<span class="chip" data-i18n="chip1">FastAPI</span>
+						<span class="chip" data-i18n="chip2">PostgreSQL</span>
+						<span class="chip" data-i18n="chip3">Celery</span>
+						<span class="chip" data-i18n="chip4">Redis</span>
+						<span class="chip" data-i18n="chip5">aiogram</span>
+					</div>
+				</article>
+
+				<article class="card reveal delay-3">
+					<span class="label" data-i18n="label4">Структура проекта</span>
+					<h2 data-i18n="h2_4">Разделение по модулям</h2>
+					<ul class="list">
+						<li data-i18n="c1">app/ - backend API для Mini App.</li>
+						<li data-i18n="c2">database/ - модели и запросы к БД.</li>
+						<li data-i18n="c3">task_queue/ - Celery-приложение и фоновые задачи.</li>
+						<li data-i18n="c4">teregram_bot/ - обработчики и команды бота.</li>
+						<li data-i18n="c5">parser/wildberries и parser/ozon - источники данных.</li>
+					</ul>
+					<div class="result">
+						<strong data-i18n="result3Title">Плюс для развития</strong>
+						<p data-i18n="result3Text">Текущая структура позволяет добавить больше маркетплейсов и гибкие правила уведомлений без переработки ядра.</p>
+					</div>
+				</article>
+			</section>
+
+		</main>
+
+		<script>
+			const translations = {
+				ru: {
+					brand: "Price Tracker v2",
+					state: "Telegram Bot + Mini App + API",
+					kicker: "Portfolio Project",
+					heroTitle: "Сервис отслеживания цен с Telegram-ботом и Mini App",
+					heroCopy:
+						"Price Tracker v2 объединяет Telegram-бота, backend API и фронтенд Mini App в единую систему. Пользователь добавляет ссылку на товар, система регулярно обновляет цену через фоновые задачи и отправляет уведомление, когда цена падает.",
+					btnFeatures: "Функционал",
+					btnStack: "Стек",
+					btnArchitecture: "Архитектура",
+					stat1: "процесса при полном запуске",
+					stat2: "источника данных: Bot, API, Mini App",
+					stat3: "фоновый контроль динамики цен",
+					previewAria: "Сценарий работы приложения",
+					line1: "/adding_by_link -> добавить товар",
+					line2: "Celery -> обновить цену по расписанию",
+					line3: "Telegram -> уведомить о снижении",
+					line4: "/show_all_products -> открыть Mini App",
+					line5: "FastAPI -> вернуть товары пользователя",
+					label1: "Пользовательский сценарий",
+					h2_1: "Ключевой функционал",
+					f1: "Добавление товара по ссылке прямо в Telegram-боте.",
+					f2: "Хранение и история цен в PostgreSQL.",
+					f3: "Автоматические обновления цен в фоне через Celery + Redis.",
+					f4: "Уведомление, когда текущая цена стала ниже предыдущей.",
+					f5: "Просмотр всех товаров в Telegram Mini App.",
+					result1Title: "Результат",
+					result1Text:
+						"Пользователь получает простой путь: добавить ссылку, дождаться изменений и быстро открыть весь список товаров в Mini App.",
+					label2: "Архитектура и процессы",
+					h2_2: "Как работает система",
+					a1: "Бот принимает команды: /start, /adding_by_link, /show_all_products и другие.",
+					a2: "API валидирует initData и отдает товары только текущему пользователю.",
+					a3: "Worker обрабатывает задачи парсинга и обновляет данные в БД.",
+					a4: "Планировщик периодически ставит задания на проверку цен.",
+					a5: "Логика готова для расширения на Ozon (модуль в разработке).",
+					result2Title: "Результат",
+					result2Text:
+						"Компоненты разделены по ответственности, поэтому проект удобно поддерживать, тестировать и масштабировать.",
+					label3: "Технологический стек",
+					h2_3: "Backend и инфраструктура",
+					s1: "Python 3.10+, FastAPI, Uvicorn.",
+					s2: "PostgreSQL + SQLAlchemy (async) для хранения данных о товарах и ценах.",
+					s3: "Celery + Redis для фоновых задач мониторинга.",
+					s4: "aiogram для Telegram-бота и командного сценария.",
+					s5: "HTML/CSS/JS фронтенд для Telegram Mini App.",
+					chip1: "FastAPI",
+					chip2: "PostgreSQL",
+					chip3: "Celery",
+					chip4: "Redis",
+					chip5: "aiogram",
+					label4: "Структура проекта",
+					h2_4: "Разделение по модулям",
+					c1: "app/ - backend API для Mini App.",
+					c2: "database/ - модели и запросы к БД.",
+					c3: "task_queue/ - Celery-приложение и фоновые задачи.",
+					c4: "teregram_bot/ - обработчики и команды бота.",
+					c5: "parser/wildberries и parser/ozon - источники данных.",
+					result3Title: "Плюс для развития",
+					result3Text:
+						"Текущая структура позволяет добавить больше маркетплейсов и гибкие правила уведомлений без переработки ядра.",
+					footerText: "Проект: price_tracker_v2 • Формат: portfolio one-page presentation"
+				},
+				en: {
+					brand: "Price Tracker v2",
+					state: "Telegram Bot + Mini App + API",
+					kicker: "Portfolio Project",
+					heroTitle: "Price tracking service with Telegram bot and Mini App",
+					heroCopy:
+						"Price Tracker v2 combines a Telegram bot, backend API, and Mini App frontend into one flow. A user sends a product link, the system updates prices in background jobs, and sends a notification when the price drops.",
+					btnFeatures: "Features",
+					btnStack: "Stack",
+					btnArchitecture: "Architecture",
+					stat1: "runtime processes for full launch",
+					stat2: "data channels: Bot, API, Mini App",
+					stat3: "background price change monitoring",
+					previewAria: "Application workflow preview",
+					line1: "/adding_by_link -> add a product",
+					line2: "Celery -> refresh prices by schedule",
+					line3: "Telegram -> notify on price drop",
+					line4: "/show_all_products -> open Mini App",
+					line5: "FastAPI -> return user products",
+					label1: "User Flow",
+					h2_1: "Core Features",
+					f1: "Add products by URL directly in Telegram bot dialogs.",
+					f2: "Store products and price history in PostgreSQL.",
+					f3: "Run background price updates through Celery + Redis.",
+					f4: "Send alerts when the current price becomes lower.",
+					f5: "Show all tracked products in Telegram Mini App.",
+					result1Title: "Result",
+					result1Text:
+						"The user gets a clear path: add a link, wait for changes, and open a full product list in Mini App at any time.",
+					label2: "Architecture and Processes",
+					h2_2: "How the System Works",
+					a1: "Bot handles commands: /start, /adding_by_link, /show_all_products, and more.",
+					a2: "API validates Telegram initData and returns only user-owned records.",
+					a3: "Worker processes parsing tasks and updates database values.",
+					a4: "Scheduler enqueues periodic checks for all tracked products.",
+					a5: "Architecture already includes Ozon module as next expansion step.",
+					result2Title: "Result",
+					result2Text:
+						"Responsibilities are split cleanly, making the project easier to maintain, test, and extend.",
+					label3: "Technology Stack",
+					h2_3: "Backend and Infrastructure",
+					s1: "Python 3.10+, FastAPI, Uvicorn.",
+					s2: "PostgreSQL + async SQLAlchemy for product and price data.",
+					s3: "Celery + Redis for asynchronous tracking tasks.",
+					s4: "aiogram for Telegram command and message handling.",
+					s5: "HTML/CSS/JS frontend for Telegram Mini App.",
+					chip1: "FastAPI",
+					chip2: "PostgreSQL",
+					chip3: "Celery",
+					chip4: "Redis",
+					chip5: "aiogram",
+					label4: "Project Structure",
+					h2_4: "Module Separation",
+					c1: "app/ - backend API for the Mini App.",
+					c2: "database/ - SQLAlchemy models and DB queries.",
+					c3: "task_queue/ - Celery app and scheduled jobs.",
+					c4: "teregram_bot/ - bot handlers and command routing.",
+					c5: "parser/wildberries and parser/ozon - data extraction layers.",
+					result3Title: "Growth Advantage",
+					result3Text:
+						"The current structure allows adding more marketplaces and flexible notification rules without rewriting the core.",
+					footerText: "Project: price_tracker_v2 • Format: portfolio one-page presentation"
+				}
+			};
+
+			const ruButton = document.getElementById("lang-ru");
+			const enButton = document.getElementById("lang-en");
+
+			function setLanguage(language) {
+				document.documentElement.lang = language;
+				localStorage.setItem("preferredLanguage", language);
+				document.querySelectorAll("[data-i18n]").forEach((element) => {
+					const key = element.dataset.i18n;
+					const value = translations[language][key];
+					if (value) {
+						element.textContent = value;
+					}
+				});
+
+				document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+					const key = element.dataset.i18nAria;
+					const value = translations[language][key];
+					if (value) {
+						element.setAttribute("aria-label", value);
+					}
+				});
+
+				ruButton.classList.toggle("active", language === "ru");
+				enButton.classList.toggle("active", language === "en");
+			}
+
+			const savedLanguage = localStorage.getItem("preferredLanguage") || "ru";
+			setLanguage(savedLanguage);
+
+			ruButton.addEventListener("click", () => setLanguage("ru"));
+			enButton.addEventListener("click", () => setLanguage("en"));
+		</script>
+	</body>
+</html>

@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Who Are You Bot | Портфолио-проект</title>
+    <meta
+      name="description"
+      content="Одностраничная презентация Telegram-бота who_are_you_bot: опрос из 10 вопросов, FSM-состояния, случайный порядок ответов и итоговый результат с фото персонажа."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #050505;
+        --paper: rgba(255, 255, 255, 0.04);
+        --ink: #ffffff;
+        --muted: rgba(255, 255, 255, 0.72);
+        --line: rgba(255, 255, 255, 0.18);
+        --brand: rgba(255, 255, 255, 0.16);
+        --brand-2: #ffffff;
+        --warm: rgba(255, 255, 255, 0.07);
+        --cold: rgba(255, 255, 255, 0.06);
+        --hero: linear-gradient(140deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        --shadow: 0 20px 46px rgba(0, 0, 0, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Yanone Kaffeesatz", "Segoe UI", sans-serif;
+        color: var(--ink);
+        min-height: 100vh;
+        line-height: 1.5;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
+          radial-gradient(circle at 82% 74%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
+          linear-gradient(140deg, #030303 0%, #0b0b0b 56%, #040404 100%);
+      }
+
+      .grain {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.08;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.6px, transparent 0.6px);
+        background-size: 3px 3px;
+      }
+
+      .lang-btn {
+        width: 54px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.04);
+        color: #ffffff;
+        font-family: "Yanone Kaffeesatz", sans-serif;
+        font-size: 22px;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+
+      .lang-btn.active {
+        background: rgba(255, 255, 255, 0.18);
+        border-color: rgba(255, 255, 255, 0.45);
+      }
+
+      .page {
+        width: min(1140px, 92vw);
+        margin: 0 auto;
+        padding: 28px 0 42px;
+        padding-left: 20px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding-left: 190px;
+      }
+
+      .brand {
+        font-family: "Yanone Kaffeesatz", sans-serif;
+        font-size: clamp(21px, 2.3vw, 28px);
+        font-weight: 700;
+      }
+
+      .status {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--muted);
+        font-size: 13px;
+        padding: 8px 13px;
+      }
+
+      .hero {
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        background: var(--hero);
+        box-shadow: var(--shadow);
+        padding: clamp(24px, 4vw, 44px);
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 22px;
+      }
+
+      .kicker {
+        display: inline-block;
+        margin-bottom: 12px;
+        border: 1px solid #f1ccb3;
+        background: var(--warm);
+        color: #8f3f1d;
+        border-radius: 999px;
+        padding: 6px 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: "Yanone Kaffeesatz", sans-serif;
+        line-height: 1.12;
+      }
+
+      h1 {
+        font-size: clamp(34px, 5vw, 64px);
+        max-width: 14ch;
+      }
+
+      .hero p {
+        margin-top: 14px;
+        color: var(--muted);
+        max-width: 62ch;
+      }
+
+      .cta {
+        margin-top: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .btn {
+        display: inline-flex;
+        text-decoration: none;
+        border-radius: 12px;
+        border: 1px solid var(--ink);
+        color: var(--ink);
+        background: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 10px 16px;
+        transition: transform 180ms ease, box-shadow 180ms ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .btn.primary {
+        border-color: var(--brand);
+        background: var(--brand);
+        color: #fff;
+      }
+
+      .preview {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .preview-top {
+        height: 36px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 11px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.45);
+      }
+
+      .preview-body {
+        padding: 14px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .line {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 8px 10px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .stats {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stat {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        padding: 12px;
+      }
+
+      .stat strong {
+        display: block;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 26px;
+        color: var(--brand-2);
+        line-height: 1;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .grid {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: var(--paper);
+        padding: clamp(18px, 2.5vw, 24px);
+        box-shadow: 0 12px 28px rgba(75, 54, 35, 0.08);
+      }
+
+      .label {
+        display: inline-block;
+        margin-bottom: 10px;
+        border-radius: 999px;
+        border: 1px solid #d2e6e3;
+        background: var(--cold);
+        color: #1d5d56;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 6px 10px;
+      }
+
+      .card h2 {
+        font-size: clamp(23px, 3vw, 34px);
+        margin-bottom: 10px;
+      }
+
+      .list {
+        padding-left: 18px;
+        display: grid;
+        gap: 8px;
+        color: var(--muted);
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .chip {
+        font-size: 12px;
+        border: 1px solid #d1d6c7;
+        border-radius: 999px;
+        background: #f8fbfa;
+				color: var(--ink);
+        padding: 6px 10px;
+      }
+
+      .result {
+        margin-top: 14px;
+        border: 1px dashed #97cbc4;
+        border-radius: 14px;
+        background: #e7f7f3;
+        padding: 12px;
+      }
+
+      .result strong {
+        display: block;
+        color: #0d5f56;
+        margin-bottom: 4px;
+      }
+
+      .footer {
+        margin-top: 18px;
+        text-align: center;
+        color: #6d5f50;
+        font-size: 14px;
+      }
+
+      .footer a {
+        color: #ffffff;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(16px);
+        animation: rise 680ms ease forwards;
+      }
+
+      .delay-1 { animation-delay: 0.12s; }
+      .delay-2 { animation-delay: 0.24s; }
+      .delay-3 { animation-delay: 0.36s; }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .top {
+          padding-left: 0;
+          padding-top: 44px;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .page {
+          padding-top: 20px;
+        }
+      }
+
+      .status,
+      .hero,
+      .preview,
+      .preview-top,
+      .line,
+      .stat,
+      .card,
+      .chip,
+      .result {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--line);
+      }
+
+      .btn,
+      .btn.primary,
+      .kicker,
+      .label {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+      }
+
+      .dot,
+      .result strong,
+      .stat strong,
+      .brand,
+      h1,
+      h2,
+      h3,
+      .list b {
+        color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <main class="page">
+      <section class="hero reveal delay-1">
+        <article>
+          <h1>Бот-опросник «Кто ты из Очень странных дел»</h1>
+          <p>
+            Telegram-бот, который проводит пользователя через интерактивный тест
+            из 10 вопросов и определяет персонажа по ответам. После завершения
+            опроса бот отправляет персональный результат и фото выбранного
+            персонажа. Проект построен на aiogram 3.x с использованием FSM для
+            стабильного пошагового сценария.
+          </p>
+
+          <div class="stats" aria-label="Краткие метрики проекта">
+            <div class="stat">
+              <strong>10</strong>
+              <span>вопросов в сценарии теста</span>
+            </div>
+            <div class="stat">
+              <strong>4</strong>
+              <span>итоговых персонажа</span>
+            </div>
+            <div class="stat">
+              <strong>1</strong>
+              <span>поток: /start до результата</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="preview" aria-label="Превью пользовательского сценария">
+          <div class="preview-top">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <div class="preview-body">
+            <div class="line">/start - запуск теста</div>
+            <div class="line">10 вопросов с inline-кнопками</div>
+            <div class="line">Ответы перемешиваются случайно</div>
+            <div class="line">FSM сохраняет прогресс и ответы</div>
+            <div class="line">Финал: персонаж + фото</div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <article class="card reveal delay-2" id="features">
+          <span class="label">Пользовательский опыт</span>
+          <h2>Что реализовано</h2>
+          <ul class="list">
+            <li>Быстрый старт теста через команду /start.</li>
+            <li>Пошаговый квиз с понятными вариантами ответов.</li>
+            <li>Динамический порядок ответов в каждом вопросе.</li>
+            <li>Финальное сообщение с описанием характера персонажа.</li>
+            <li>Отправка изображения персонажа после прохождения теста.</li>
+          </ul>
+          <div class="result">
+            <strong>Результат</strong>
+            Получился легкий и вовлекающий бот-опросник, который подходит для
+            развлечения аудитории и демонстрации навыков разработки Telegram-ботов.
+          </div>
+        </article>
+
+        <article class="card reveal delay-3" id="flow">
+          <span class="label">Логика и архитектура</span>
+          <h2>Как работает под капотом</h2>
+          <ul class="list">
+            <li>FSM хранит список ответов и номер текущего шага.</li>
+            <li>Inline callback обрабатывает выбор варианта без новых команд.</li>
+            <li>Счетчик ответов определяет наиболее частый вариант.</li>
+            <li>По итоговому индексу выбирается персонаж и соответствующее фото.</li>
+            <li>После завершения состояние очищается для нового прохождения.</li>
+          </ul>
+          <div class="result">
+            <strong>Технический плюс</strong>
+            Такая структура легко расширяется: можно добавить больше вопросов,
+            новых персонажей и хранение статистики пользователей.
+          </div>
+        </article>
+
+        <article class="card reveal delay-2" id="stack">
+          <span class="label">Технологический стек</span>
+          <h2>Библиотеки и окружение</h2>
+          <ul class="list">
+            <li>Python 3.14.</li>
+            <li>aiogram 3.x для Telegram Bot API.</li>
+            <li>FSM (MemoryStorage) для управления состояниями.</li>
+            <li>python-dotenv для загрузки TELEGRAM_BOT_TOKEN из .env.</li>
+            <li>InlineKeyboardMarkup для интерактивных ответов.</li>
+          </ul>
+          <div class="chips">
+            <span class="chip">Python</span>
+            <span class="chip">aiogram</span>
+            <span class="chip">FSM</span>
+            <span class="chip">dotenv</span>
+            <span class="chip">Telegram API</span>
+          </div>
+        </article>
+
+        <article class="card reveal delay-3">
+          <span class="label">Структура проекта</span>
+          <h2>Что внутри репозитория</h2>
+          <ul class="list">
+            <li>main.py - логика бота, сценарий опроса и обработчики.</li>
+            <li>README.md - инструкция по установке и запуску.</li>
+            <li>.env - токен бота для локального запуска.</li>
+            <li>1.jpg-4.jpg - изображения итоговых персонажей.</li>
+            <li>requirements.txt - зависимости проекта.</li>
+          </ul>
+          <div class="result">
+            <strong>Готовность к демо</strong>
+            Проект запускается локально за несколько минут и демонстрирует
+            практическое использование FSM, callback-обработчиков и работы с медиа.
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const ruButton = document.getElementById('lang-ru');
+      const enButton = document.getElementById('lang-en');
+      const normalize = (value) => value.replace(/\s+/g, ' ').trim();
+
+      const textMap = {
+        'Портфолио-проект': 'Portfolio Project',
+        'Бот-опросник «Кто ты из Очень странных дел»': 'Quiz bot "Who are you from Stranger Things"',
+        'Telegram-бот, который проводит пользователя через интерактивный тест из 10 вопросов и определяет персонажа по ответам. После завершения опроса бот отправляет персональный результат и фото выбранного персонажа. Проект построен на aiogram 3.x с использованием FSM для стабильного пошагового сценария.': 'Telegram bot that guides the user through an interactive 10-question quiz and identifies a character by answers. After completion, the bot sends a personal result and character photo. The project is built on aiogram 3.x using FSM for a stable step-by-step flow.',
+        'Функционал': 'Features',
+        'Стек': 'Stack',
+        'Логика': 'Logic',
+        'вопросов в сценарии теста': 'questions in quiz flow',
+        'итоговых персонажа': 'final characters',
+        'поток: /start до результата': 'flow: /start to result',
+        'Превью пользовательского сценария': 'User flow preview',
+        '/start - запуск теста': '/start - start the quiz',
+        '10 вопросов с inline-кнопками': '10 questions with inline buttons',
+        'Ответы перемешиваются случайно': 'Answers are randomly shuffled',
+        'FSM сохраняет прогресс и ответы': 'FSM stores progress and answers',
+        'Финал: персонаж + фото': 'Final: character + photo',
+        'Пользовательский опыт': 'User experience',
+        'Что реализовано': 'What is implemented',
+        'Быстрый старт теста через команду /start.': 'Quick quiz start via /start command.',
+        'Пошаговый квиз с понятными вариантами ответов.': 'Step-by-step quiz with clear answer options.',
+        'Динамический порядок ответов в каждом вопросе.': 'Dynamic answer order in each question.',
+        'Финальное сообщение с описанием характера персонажа.': 'Final message with character personality description.',
+        'Отправка изображения персонажа после прохождения теста.': 'Sending character image after completing the test.',
+        'Результат': 'Result',
+        'Получился легкий и вовлекающий бот-опросник, который подходит для развлечения аудитории и демонстрации навыков разработки Telegram-ботов.': 'The result is a light and engaging quiz bot suitable for audience entertainment and demonstrating Telegram bot development skills.',
+        'Логика и архитектура': 'Logic and architecture',
+        'Как работает под капотом': 'How it works under the hood',
+        'FSM хранит список ответов и номер текущего шага.': 'FSM stores the answer list and current step number.',
+        'Inline callback обрабатывает выбор варианта без новых команд.': 'Inline callback handles option selection without new commands.',
+        'Счетчик ответов определяет наиболее частый вариант.': 'Answer counter determines the most frequent option.',
+        'По итоговому индексу выбирается персонаж и соответствующее фото.': 'By final index, character and corresponding photo are selected.',
+        'После завершения состояние очищается для нового прохождения.': 'After completion, state is cleared for a new run.',
+        'Технический плюс': 'Technical advantage',
+        'Такая структура легко расширяется: можно добавить больше вопросов, новых персонажей и хранение статистики пользователей.': 'This structure is easy to extend: you can add more questions, new characters, and user statistics storage.',
+        'Технологический стек': 'Technology stack',
+        'Библиотеки и окружение': 'Libraries and environment',
+        'Python 3.14.': 'Python 3.14.',
+        'aiogram 3.x для Telegram Bot API.': 'aiogram 3.x for Telegram Bot API.',
+        'FSM (MemoryStorage) для управления состояниями.': 'FSM (MemoryStorage) for state management.',
+        'python-dotenv для загрузки TELEGRAM_BOT_TOKEN из .env.': 'python-dotenv for loading TELEGRAM_BOT_TOKEN from .env.',
+        'InlineKeyboardMarkup для интерактивных ответов.': 'InlineKeyboardMarkup for interactive answers.',
+        'Структура проекта': 'Project structure',
+        'Что внутри репозитория': 'What is inside repository',
+        'main.py - логика бота, сценарий опроса и обработчики.': 'main.py - bot logic, quiz scenario, and handlers.',
+        'README.md - инструкция по установке и запуску.': 'README.md - setup and run instructions.',
+        '.env - токен бота для локального запуска.': '.env - bot token for local run.',
+        '1.jpg-4.jpg - изображения итоговых персонажей.': '1.jpg-4.jpg - final character images.',
+        'requirements.txt - зависимости проекта.': 'requirements.txt - project dependencies.',
+        'Готовность к демо': 'Demo readiness',
+        'Проект запускается локально за несколько минут и демонстрирует практическое использование FSM, callback-обработчиков и работы с медиа.': 'Project launches locally in minutes and demonstrates practical usage of FSM, callback handlers, and media handling.',
+        'Проект: who_are_you_bot • Формат: portfolio one-page presentation': 'Project: who_are_you_bot • Format: portfolio one-page presentation'
+      };
+
+      const nodes = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        if (node.parentElement && node.parentElement.closest('.language-switch, script, style')) {
+          continue;
+        }
+        if (normalize(node.textContent).length > 0) {
+          nodes.push({ node, original: node.textContent });
+        }
+      }
+
+      function setLanguage(lang) {
+        document.documentElement.lang = lang;
+        localStorage.setItem('preferredLanguage', lang);
+        nodes.forEach(({ node, original }) => {
+          const key = normalize(original);
+          if (lang === 'en' && textMap[key]) {
+            node.textContent = textMap[key];
+          } else {
+            node.textContent = original;
+          }
+        });
+        ruButton.classList.toggle('active', lang === 'ru');
+        enButton.classList.toggle('active', lang === 'en');
+      }
+
+      // Load language from localStorage on page load
+      const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+      setLanguage(savedLanguage);
+
+      ruButton.addEventListener('click', () => setLanguage('ru'));
+      enButton.addEventListener('click', () => setLanguage('en'));
+    </script>
+  </body>
+</html>
