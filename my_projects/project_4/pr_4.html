@@ -3,10 +3,10 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Price Tracker v2</title>
+		<title>Price Tracker</title>
 		<meta
 			name="description"
-			content="Презентация проекта price_tracker_v2: Telegram-бот, FastAPI API, Mini App, Celery, Redis, PostgreSQL и трекинг цен товаров."
+			content="Презентация проекта Price Tracker: Telegram-бот, FastAPI API, Mini App, Celery, Redis, PostgreSQL и трекинг цен товаров."
 		/>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -363,7 +363,7 @@
 				<article>
 					<h1 data-i18n="heroTitle">Сервис отслеживания цен с Telegram-ботом и Mini App</h1>
 					<p data-i18n="heroCopy">
-						Price Tracker v2 объединяет Telegram-бота, backend API и фронтенд Mini App в единую систему. Пользователь
+						Price Tracker объединяет Telegram-бота, backend API и фронтенд Mini App в единую систему. Пользователь
 						добавляет ссылку на товар, система регулярно обновляет цену через фоновые задачи и отправляет уведомление,
 						когда цена падает.
 					</p>
@@ -425,7 +425,6 @@
 						<li data-i18n="a2">API валидирует initData и отдает товары только текущему пользователю.</li>
 						<li data-i18n="a3">Worker обрабатывает задачи парсинга и обновляет данные в БД.</li>
 						<li data-i18n="a4">Планировщик периодически ставит задания на проверку цен.</li>
-						<li data-i18n="a5">Логика готова для расширения на Ozon (модуль в разработке).</li>
 					</ul>
 					<div class="result">
 						<strong data-i18n="result2Title">Результат</strong>
@@ -509,12 +508,12 @@
 		// --- /Языковая логика ---
 		const translations = {
 				ru: {
-					brand: "Price Tracker v2",
+					brand: "Price Tracker",
 					state: "Telegram Bot + Mini App + API",
 					kicker: "Portfolio Project",
 					heroTitle: "Сервис отслеживания цен с Telegram-ботом и Mini App",
 					heroCopy:
-						"Price Tracker v2 объединяет Telegram-бота, backend API и фронтенд Mini App в единую систему. Пользователь добавляет ссылку на товар, система регулярно обновляет цену через фоновые задачи и отправляет уведомление, когда цена падает.",
+						"Price Tracker объединяет Telegram-бота, backend API и фронтенд Mini App в единую систему. Пользователь добавляет ссылку на товар, система регулярно обновляет цену через фоновые задачи и отправляет уведомление, когда цена падает.",
 					btnFeatures: "Функционал",
 					btnStack: "Стек",
 					btnArchitecture: "Архитектура",
@@ -543,7 +542,6 @@
 					a2: "API валидирует initData и отдает товары только текущему пользователю.",
 					a3: "Worker обрабатывает задачи парсинга и обновляет данные в БД.",
 					a4: "Планировщик периодически ставит задания на проверку цен.",
-					a5: "Логика готова для расширения на Ozon (модуль в разработке).",
 					result2Title: "Результат",
 					result2Text:
 						"Компоненты разделены по ответственности, поэтому проект удобно поддерживать, тестировать и масштабировать.",
@@ -569,15 +567,15 @@
 					result3Title: "Плюс для развития",
 					result3Text:
 						"Текущая структура позволяет добавить больше маркетплейсов и гибкие правила уведомлений без переработки ядра.",
-					footerText: "Проект: price_tracker_v2 • Формат: portfolio one-page presentation"
+					footerText: "Проект: Price Tracker • Формат: portfolio one-page presentation"
 				},
 				en: {
-					brand: "Price Tracker v2",
+					brand: "Price Tracker",
 					state: "Telegram Bot + Mini App + API",
 					kicker: "Portfolio Project",
 					heroTitle: "Price tracking service with Telegram bot and Mini App",
 					heroCopy:
-						"Price Tracker v2 combines a Telegram bot, backend API, and Mini App frontend into one flow. A user sends a product link, the system updates prices in background jobs, and sends a notification when the price drops.",
+						"Price Tracker combines a Telegram bot, backend API, and Mini App frontend into one flow. A user sends a product link, the system updates prices in background jobs, and sends a notification when the price drops.",
 					btnFeatures: "Features",
 					btnStack: "Stack",
 					btnArchitecture: "Architecture",
@@ -606,7 +604,6 @@
 					a2: "API validates Telegram initData and returns only user-owned records.",
 					a3: "Worker processes parsing tasks and updates database values.",
 					a4: "Scheduler enqueues periodic checks for all tracked products.",
-					a5: "Architecture already includes Ozon module as next expansion step.",
 					result2Title: "Result",
 					result2Text:
 						"Responsibilities are split cleanly, making the project easier to maintain, test, and extend.",
@@ -632,7 +629,7 @@
 					result3Title: "Growth Advantage",
 					result3Text:
 						"The current structure allows adding more marketplaces and flexible notification rules without rewriting the core.",
-					footerText: "Project: price_tracker_v2 • Format: portfolio one-page presentation"
+					footerText: "Project: Price Tracker • Format: portfolio one-page presentation"
 				}
 			};
 
