@@ -41,6 +41,8 @@
 					radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
 					radial-gradient(circle at 84% 76%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
 					linear-gradient(140deg, #030303 0%, #0a0a0a 56%, #040404 100%);
+				background-attachment: fixed;
+				background-color: #050505;
 			}
 
 			.noise {
@@ -498,7 +500,8 @@
 		</main>
 
 		<script>
-			const translations = {
+		// ...existing code...
+		const translations = {
 				ru: {
 					brand: "Restaurant Reservation Bot",
 					state: "FastAPI + Telegram Mini App + PostgreSQL",

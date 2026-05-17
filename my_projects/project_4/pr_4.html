@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html id="html-root" lang="ru">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -41,6 +41,8 @@
 					radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
 					radial-gradient(circle at 84% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
 					linear-gradient(140deg, #020202 0%, #0a0a0a 56%, #040404 100%);
+				background-attachment: fixed;
+				background-color: #050505;
 			}
 
 			.noise {
@@ -470,7 +472,42 @@
 		</main>
 
 		<script>
-			const translations = {
+		// --- Языковая логика с поддержкой ?lang=ru/en ---
+		function getLangFromUrl() {
+			const params = new URLSearchParams(window.location.search);
+			return params.get('lang');
+		}
+		function setLanguage(language, updateUrl = true) {
+			document.documentElement.lang = language;
+			localStorage.setItem('preferredLanguage', language);
+			document.querySelectorAll('[data-i18n]').forEach((element) => {
+				const key = element.dataset.i18n;
+				const value = translations[language][key];
+				if (value) {
+					element.textContent = value;
+				}
+			});
+			// Обновляем параметр lang в URL без перезагрузки
+			if (updateUrl) {
+				const url = new URL(window.location.href);
+				url.searchParams.set('lang', language);
+				window.history.replaceState({}, '', url);
+			}
+		}
+		document.addEventListener('DOMContentLoaded', function() {
+			const urlLang = getLangFromUrl();
+			const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+			setLanguage(urlLang || savedLanguage, false);
+
+			const ruButton = document.getElementById('lang-ru');
+			const enButton = document.getElementById('lang-en');
+			if (ruButton && enButton) {
+				ruButton.addEventListener('click', () => setLanguage('ru'));
+				enButton.addEventListener('click', () => setLanguage('en'));
+			}
+		});
+		// --- /Языковая логика ---
+		const translations = {
 				ru: {
 					brand: "Price Tracker v2",
 					state: "Telegram Bot + Mini App + API",

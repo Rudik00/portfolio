@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html id="html-root" lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,6 +36,8 @@
         radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0) 34%),
         radial-gradient(circle at 82% 74%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 40%),
         linear-gradient(140deg, #030303 0%, #0b0b0b 56%, #040404 100%);
+      background-attachment: fixed;
+      background-color: #050505;
       min-height: 100vh;
       line-height: 1.5;
     }
@@ -54,7 +56,9 @@
       width: 54px;
       height: 34px;
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .const.translations {
       background: rgba(255, 255, 255, 0.04);
       color: #ffffff;
       font-family: "Yanone Kaffeesatz", sans-serif;
@@ -652,12 +656,15 @@
       enButton.classList.toggle('active', lang === 'en');
     }
 
-    // Load language from localStorage on page load
-    const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
-    setLanguage(savedLanguage);
+    // Динамическая инициализация языка после загрузки DOM
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlLang = (new URLSearchParams(window.location.search)).get('lang');
+      const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
+      setLanguage(urlLang || savedLanguage);
 
-    ruButton.addEventListener('click', () => setLanguage('ru'));
-    enButton.addEventListener('click', () => setLanguage('en'));
+      ruButton.addEventListener('click', () => setLanguage('ru'));
+      enButton.addEventListener('click', () => setLanguage('en'));
+    });
   </script>
 </body>
 </html>
