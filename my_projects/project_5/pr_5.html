@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ru">
+<html id="html-root" lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <html id="html-root" lang="ru">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Who Are You Bot</title>
     <meta
       name="description"
@@ -78,6 +78,15 @@
       .lang-btn.active {
         background: rgba(255, 255, 255, 0.18);
         border-color: rgba(255, 255, 255, 0.45);
+      }
+
+      .language-switch {
+        position: absolute;
+        top: 26px;
+        left: 0;
+        display: flex;
+        gap: 8px;
+        z-index: 10;
       }
 
       .page {
@@ -374,6 +383,42 @@
         }
       }
 
+      @media (max-width: 600px) {
+        .language-switch {
+          top: 14px;
+          left: 0;
+          gap: 6px;
+        }
+
+        .lang-btn {
+          width: 46px;
+          height: 30px;
+          font-size: 17px;
+        }
+
+        .page {
+          width: calc(100% - 28px);
+          padding-left: 0;
+        }
+
+        .hero {
+          padding: 20px;
+        }
+
+        .hero p,
+        .list,
+        .result,
+        .stat span,
+        .line {
+          font-size: 18px;
+          line-height: 1.45;
+        }
+
+        .card h2 {
+          font-size: clamp(30px, 8vw, 38px);
+        }
+      }
+
       .status,
       .hero,
       .preview,
@@ -601,6 +646,11 @@
       function setLanguage(lang) {
         document.documentElement.lang = lang;
         localStorage.setItem('preferredLanguage', lang);
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.history.replaceState({}, '', url);
+
         nodes.forEach(({ node, original }) => {
           const key = normalize(original);
           if (lang === 'en' && textMap[key]) {
@@ -613,9 +663,10 @@
         enButton.classList.toggle('active', lang === 'en');
       }
 
-      // Load language from localStorage on page load
+      // Load language from URL or localStorage on page load
+      const urlLang = (new URLSearchParams(window.location.search)).get('lang');
       const savedLanguage = localStorage.getItem('preferredLanguage') || 'ru';
-      setLanguage(savedLanguage);
+      setLanguage(urlLang || savedLanguage);
 
       ruButton.addEventListener('click', () => setLanguage('ru'));
       enButton.addEventListener('click', () => setLanguage('en'));
